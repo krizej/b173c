@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Install dependencies
-      run: sudo apt-get -qy install git make libsdl2-dev libbsd-dev libz-dev
+      run: sudo apt-get -qy update && sudo apt-get -qy install git make libsdl2-dev libbsd-dev libz-dev
 
     - name: Check out code
       uses: actions/checkout@v4
