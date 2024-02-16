@@ -94,7 +94,7 @@ static uint load_shader(const char *vs, const char *fs)
 	return check_program_compile(h_prog, h_vs, h_fs);
 }
 
-void gl_debug_message(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam)
+void gl_debug_message(GLenum source attr(unused), GLenum type, GLuint id attr(unused), GLenum severity, GLsizei length attr(unused), const GLchar *message, const void *userParam attr(unused))
 {
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
 			(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),

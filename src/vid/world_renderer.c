@@ -260,7 +260,7 @@ void render_fluid(int x, int y, int z, block_data self)
 	}
 }
 
-void render_null(int x, int y, int z, block_data self)
+void render_null(int x attr(unused), int y attr(unused), int z attr(unused), block_data self attr(unused))
 {
 
 }

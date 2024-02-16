@@ -82,7 +82,9 @@ void mat4_rotation(mat4 dest, vec3 rotation)
 
 void mat4_scale(mat4 dest, vec3 scale)
 {
-// todo:
+  dest[0][0] = scale.x;
+  dest[1][1] = scale.y;
+  dest[2][2] = scale.z;
 }
 
 void cam_angles(vec3 *fwd, vec3 *side, vec3 *up, float yaw, float pitch)

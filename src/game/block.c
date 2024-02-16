@@ -117,7 +117,7 @@ block_properties block_get_properties(block_id id)
 	return blocks[id & 255];
 }
 
-ubyte block_get_texture_index(block_id id, block_face face, ubyte metadata, int x, int y, int z)
+ubyte block_get_texture_index(block_id id, block_face face, ubyte metadata, int x attr(unused), int y attr(unused), int z attr(unused))
 {
 	block_properties props = block_get_properties(id);
 	int off = 0;

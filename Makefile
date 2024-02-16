@@ -1,8 +1,8 @@
 CC := gcc
-CFLAGS := -ggdb3 -Iinclude -Isubmodules -Wall -Wpedantic -Wextra -Wdeclaration-after-statement -Wno-missing-field-initializers
-# temporary because of net_handler.c and net_writer.c
-CFLAGS += -Wno-unused-parameter
-# CFLAGS += -fsanitize=address
+CFLAGS := -ggdb3 -Iinclude -Isubmodules
+WARNINGS := -Wall -Wpedantic -Wextra
+WARNINGS += -Wdeclaration-after-statement    # style
+WARNINGS += -Wno-missing-field-initializers  # cvar issues
 LDFLAGS := -lm
 
 # add SDL2
@@ -38,7 +38,7 @@ OBJ_FILES += $(SHADER_SOURCES_OBJ)
 ASSET_PREP := assets/prepare_asset_sources.py
 ASSET_SOURCES := $(OBJ_DIR)/asset_sources.c
 ASSET_SOURCES_OBJ := $(OBJ_DIR)/asset_sources.o
-ASSET_FILES := $(shell find $(ASSET_DIR)/ -type f -name "*.png")
+ASSET_FILES := $(shell find $(ASSET_DIR)/ -type f -name "*.png") # xd
 OBJ_FILES += $(ASSET_SOURCES_OBJ)
 
 # submodule stuff
@@ -76,14 +76,14 @@ $(BUILD_DIR):
 # dont care about warnings from src/ext/
 $(OBJ_DIR)/ext/%.o: $(SRC_DIR)/ext/%.c $(HDR_FILES)
 	./mkdirs.sh $@
-	$(CC) -c -Iinclude -o $@ $<
+	$(CC) -c $(CFLAGS) $(LDFLAGS) -o $@ $<
 
 
 # project sources (c)
 # {
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HDR_FILES) $(DEPS)
 	./mkdirs.sh $@
-	$(CC) -c $(CFLAGS) $(LDFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) $(WARNINGS) $(LDFLAGS) -o $@ $<
 # }
 
 # project sources (glsl)

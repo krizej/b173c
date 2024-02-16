@@ -73,7 +73,7 @@ void write_window_items_payload(struct ni_wi_payload data)
     }
 }
 
-void write_metadata(struct net_entity_metadata data)
+void write_metadata(struct net_entity_metadata data attr(unused))
 {
     // todo :-(
     net_write_byte(0x7f);
