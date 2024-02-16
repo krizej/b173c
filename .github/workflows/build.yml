@@ -1,0 +1,22 @@
+name: build
+on: [push, pull_request, workflow_dispatch]
+jobs:
+  linux-build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install dependencies
+      run: apt-get -qy install git make libsdl2-dev libbsd-dev libz-dev
+
+    - name: Check out code
+      uses: actions/checkout@v4
+      with:
+        submodules: true
+
+    - name: Build
+      run: make all
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: b173c
+	path: build/b173c
