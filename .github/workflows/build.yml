@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Install dependencies
-      run: sudo apt-get -qy update && sudo apt-get -qy install git make libsdl2-dev libbsd-dev libz-dev python-pip && pip install pillow
+      run: sudo apt-get -qy update && sudo apt-get -qy install git make libsdl2-dev libbsd-dev libz-dev python-pip && python -m pip install pillow
       
 
     - name: Check out code
