@@ -15,7 +15,7 @@
 #include <setjmp.h>
 #include <uchar.h>
 #include "packets.h"
-#include <string.h>
+#include <bsd/string.h>
 
 #define PACKET(id, name, stuff) [id] = #name,
 const char *packet_names[256] = {

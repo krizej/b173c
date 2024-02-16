@@ -53,7 +53,7 @@ SRC_FILES += $(DEPS_C)
 OBJ_FILES += $(patsubst %.c,$(OBJ_DIR)/%.o,$(DEPS_C))
 
 $(DEPS):
-	git submodule update --init --recursive --remote
+	git submodule update --init --recursive --remote # someone forgot the submodules :-P
 
 $(OBJ_DIR)/%.o: %.c $(HDR_FILES) $(DEPS)
 	./mkdirs.sh $@

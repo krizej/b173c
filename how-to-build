@@ -1,0 +1,15 @@
+for now, b173c can only be built on linux. windows support will be added later via mingw.
+
+required packages:
+  sdl2 libbsd zlib python3 python-pillow
+
+simply run
+  make all
+in the project's root directory. the binary should be placed at
+  build/b173c
+
+
+
+
+
+
