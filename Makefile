@@ -11,6 +11,9 @@ LDFLAGS += $(shell pkg-config --libs sdl2)
 # add zlib
 CFLAGS += $(shell pkg-config --cflags zlib)
 LDFLAGS += $(shell pkg-config --libs zlib)
+# add libbsd
+CFLAGS += $(shell pkg-config --cflags libbsd)
+LDFLAGS += $(shell pkg-config --libs libbsd)
 
 SRC_DIR := src
 OBJ_DIR := obj
