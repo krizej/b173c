@@ -2,7 +2,7 @@
 #define B173C_ENTITY_H
 
 #include "mathlib.h"
-#include "hashmap.h"
+#include "hashmap.c/hashmap.h"
 #include "block.h"
 
 typedef enum {

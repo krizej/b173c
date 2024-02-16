@@ -1,0 +1,6 @@
+[submodule "submodules/hashmap.c"]
+	path = submodules/hashmap.c
+	url = https://github.com/tidwall/hashmap.c
+[submodule "submodules/stb"]
+	path = submodules/stb
+	url = https://github.com/nothings/stb

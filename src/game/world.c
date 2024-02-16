@@ -1,7 +1,7 @@
 #include <zlib.h>
 #include "world.h"
 #include "client/console.h"
-#include "hashmap.h"
+#include "hashmap.c/hashmap.h"
 #include "client/client.h"
 #include "entity.h"
 

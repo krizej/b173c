@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -ggdb3 -Iinclude -Wall -Wpedantic -Wextra -Wdeclaration-after-statement -Wno-missing-field-initializers
+CFLAGS := -ggdb3 -Iinclude -Isubmodules -Wall -Wpedantic -Wextra -Wdeclaration-after-statement -Wno-missing-field-initializers
 # temporary because of net_handler.c and net_writer.c
 CFLAGS += -Wno-unused-parameter
 # CFLAGS += -fsanitize=address
@@ -41,6 +41,24 @@ ASSET_SOURCES_OBJ := $(OBJ_DIR)/asset_sources.o
 ASSET_FILES := $(shell find $(ASSET_DIR)/ -type f -name "*.png")
 OBJ_FILES += $(ASSET_SOURCES_OBJ)
 
+# submodule stuff
+# {
+DEP_HASHMAP := submodules/hashmap.c/hashmap.c
+DEP_STB_IMAGE := submodules/stb/stb_image.h
+DEPS_C := $(DEP_HASHMAP)
+DEPS_H := $(DEP_STB_IMAGE)
+DEPS := $(DEPS_C) $(DEPS_H)
+
+SRC_FILES += $(DEPS_C)
+OBJ_FILES += $(patsubst %.c,$(OBJ_DIR)/%.o,$(DEPS_C))
+
+$(DEPS):
+	git submodule update --init --recursive --remote
+
+$(OBJ_DIR)/%.o: %.c $(HDR_FILES) $(DEPS)
+	./mkdirs.sh $@
+	$(CC) -c $(CFLAGS) $(LDFLAGS) -o $@ $<
+# }
 
 all: $(OBJ_DIR) $(BUILD_DIR) $(TARGET)
 
@@ -55,33 +73,36 @@ $(BUILD_DIR):
 	mkdir $(BUILD_DIR)
 
 
-# dont care about warnings from ext/s
+# dont care about warnings from src/ext/
 $(OBJ_DIR)/ext/%.o: $(SRC_DIR)/ext/%.c $(HDR_FILES)
 	./mkdirs.sh $@
 	$(CC) -c -Iinclude -o $@ $<
 
 
 # project sources (c)
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HDR_FILES)
+# {
+$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HDR_FILES) $(DEPS)
 	./mkdirs.sh $@
 	$(CC) -c $(CFLAGS) $(LDFLAGS) -o $@ $<
-
+# }
 
 # project sources (glsl)
+# {
 $(SHADER_SOURCES): $(SHADER_FILES)
 	$(PY) $(SHADER_PREP) $@ $^
 
 $(SHADER_SOURCES_OBJ): $(SHADER_SOURCES)
 	$(CC) -c $(CFLAGS) $(LDFLAGS) -o $@ $<
-
+# }
 
 # assets
+# {
 $(ASSET_SOURCES): $(ASSET_FILES)
 	$(PY) $(ASSET_PREP) $@ $^
 
 $(ASSET_SOURCES_OBJ): $(ASSET_SOURCES)
 	$(CC) -c $(CFLAGS) $(LDFLAGS) -o $@ $<
-
+# }
 
 # final binary
 $(TARGET): $(OBJ_FILES)

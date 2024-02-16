@@ -6,7 +6,7 @@
 #include "game/world.h"
 #include "game/entity.h"
 #include "client/console.h"
-#include "hashmap.h"
+#include "hashmap.c/hashmap.h"
 #include "meshbuilder.h"
 #include "assets.h"
 

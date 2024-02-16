@@ -3,7 +3,7 @@
 
 #include "common.h"
 #include "mathlib.h"
-#include "hashmap.h"
+#include "hashmap.c/hashmap.h"
 #include "block.h"
 #include "entity.h"
 

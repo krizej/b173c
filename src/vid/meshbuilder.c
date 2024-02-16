@@ -5,7 +5,7 @@
 
 #include "meshbuilder.h"
 #include "common.h"
-#include "hashmap.h"
+#include "hashmap.c/hashmap.h"
 
 #define DEFAULT_CAPACITY 1024
 

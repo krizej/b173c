@@ -5,7 +5,7 @@
 #include "glad/glad.h"
 #include "game/world.h"
 #include "client/console.h"
-#include "hashmap.h"
+#include "hashmap.c/hashmap.h"
 #include "meshbuilder.h"
 #include "assets.h"
 #include "client/cvar.h"

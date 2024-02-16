@@ -2,7 +2,7 @@
 #include "assets.h"
 #include <SDL2/SDL.h>
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include "stb/stb_image.h"
 
 struct asset_storage builtin_assets[ASSET_COUNT] = {0};
 struct asset_storage loaded_assets[ASSET_COUNT] = {0};
