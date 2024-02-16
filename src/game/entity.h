@@ -46,14 +46,14 @@ typedef enum {
 extern entity_type nonliving_type_lookup[256];
 
 typedef struct entity {
-	int id;
+    int id;
     entity_type type;
     char *name; // for named entities (players)
 
-	vec3 position;
-	vec3 velocity;
+    vec3 position;
+    vec3 velocity;
     vec3 rotation;
-	bbox bbox;
+    bbox bbox;
 
     struct entity *vehicle;
 
@@ -68,7 +68,11 @@ typedef struct entity {
             enum { MINECART_EMPTY, MINECART_CHEST, MINECART_FURNACE } type;
         } minecart;
         struct {
-            enum { PROJECTILE_SNOWBALL, PROJECTILE_EGG, PROJECTILE_FIREBALL } type;
+            enum {
+                PROJECTILE_SNOWBALL,
+                PROJECTILE_EGG,
+                PROJECTILE_FIREBALL
+            } type;
             struct entity *owner;
         } projectile;
         struct {

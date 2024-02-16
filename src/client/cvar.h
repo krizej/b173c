@@ -4,15 +4,15 @@
 #include "common.h"
 
 typedef struct cvar {
-	char *name;
-	char *default_value;
-	void (*onchange)(void);
+    char *name;
+    char *default_value;
+    void (*onchange)(void);
 
-	char *string;
-	float value;
-	int integer;
+    char *string;
+    float value;
+    int integer;
 
-	struct cvar *next;
+    struct cvar *next;
 } cvar;
 
 void cvar_init(void);

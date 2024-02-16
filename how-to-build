@@ -7,9 +7,3 @@ simply run
   make all
 in the project's root directory. the binary should be placed at
   build/b173c
-
-
-
-
-
-

@@ -17,7 +17,12 @@ typedef unsigned char ubyte;
 
 void *_mem_alloc_impl(size_t sz, const char *file, int line);
 #define mem_alloc(size) _mem_alloc_impl(size, __FILE__, __LINE__)
-#define mem_free(p) do { if(p) free(p); p = NULL; } while(0)
+#define mem_free(p)  \
+    do {             \
+        if(p)        \
+            free(p); \
+        p = NULL;    \
+    } while(0)
 
 void con_printf(char *text, ...);
 

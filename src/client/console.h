@@ -6,37 +6,37 @@
 #define CON_STYLE_PREFIX_STR  "\xa7"
 #define CON_STYLE_PREFIX_CHAR '\xa7'
 
-#define CON_STYLE_BLACK       CON_STYLE_PREFIX_STR "0"
-#define CON_STYLE_DARK_BLUE   CON_STYLE_PREFIX_STR "1"
-#define CON_STYLE_DARK_GREEN  CON_STYLE_PREFIX_STR "2"
-#define CON_STYLE_DARK_CYAN   CON_STYLE_PREFIX_STR "3"
-#define CON_STYLE_DARK_RED    CON_STYLE_PREFIX_STR "4"
-#define CON_STYLE_PURPLE      CON_STYLE_PREFIX_STR "6"
-#define CON_STYLE_ORANGE      CON_STYLE_PREFIX_STR "7"
-#define CON_STYLE_LIGHT_GRAY  CON_STYLE_PREFIX_STR "7"
-#define CON_STYLE_GRAY        CON_STYLE_PREFIX_STR "8"
-#define CON_STYLE_BLUE        CON_STYLE_PREFIX_STR "9"
-#define CON_STYLE_LIME        CON_STYLE_PREFIX_STR "a"
-#define CON_STYLE_CYAN        CON_STYLE_PREFIX_STR "b"
-#define CON_STYLE_RED         CON_STYLE_PREFIX_STR "c"
-#define CON_STYLE_PINK        CON_STYLE_PREFIX_STR "d"
-#define CON_STYLE_YELLOW      CON_STYLE_PREFIX_STR "e"
-#define CON_STYLE_WHITE       CON_STYLE_PREFIX_STR "f"
-#define CON_STYLE_INVISIBLE   CON_STYLE_PREFIX_STR "i"
-#define CON_STYLE_PADPX       CON_STYLE_PREFIX_STR "p"
+#define CON_STYLE_BLACK      CON_STYLE_PREFIX_STR "0"
+#define CON_STYLE_DARK_BLUE  CON_STYLE_PREFIX_STR "1"
+#define CON_STYLE_DARK_GREEN CON_STYLE_PREFIX_STR "2"
+#define CON_STYLE_DARK_CYAN  CON_STYLE_PREFIX_STR "3"
+#define CON_STYLE_DARK_RED   CON_STYLE_PREFIX_STR "4"
+#define CON_STYLE_PURPLE     CON_STYLE_PREFIX_STR "6"
+#define CON_STYLE_ORANGE     CON_STYLE_PREFIX_STR "7"
+#define CON_STYLE_LIGHT_GRAY CON_STYLE_PREFIX_STR "7"
+#define CON_STYLE_GRAY       CON_STYLE_PREFIX_STR "8"
+#define CON_STYLE_BLUE       CON_STYLE_PREFIX_STR "9"
+#define CON_STYLE_LIME       CON_STYLE_PREFIX_STR "a"
+#define CON_STYLE_CYAN       CON_STYLE_PREFIX_STR "b"
+#define CON_STYLE_RED        CON_STYLE_PREFIX_STR "c"
+#define CON_STYLE_PINK       CON_STYLE_PREFIX_STR "d"
+#define CON_STYLE_YELLOW     CON_STYLE_PREFIX_STR "e"
+#define CON_STYLE_WHITE      CON_STYLE_PREFIX_STR "f"
+#define CON_STYLE_INVISIBLE  CON_STYLE_PREFIX_STR "i"
+#define CON_STYLE_PADPX      CON_STYLE_PREFIX_STR "p"
 
 struct cmd {
-	char *name;
-	void (*func)(void);
+    char *name;
+    void (*func)(void);
 
-	struct cmd *next;
+    struct cmd *next;
 };
 
 struct alias {
-	char *name;
-	char *cmd;
+    char *name;
+    char *cmd;
 
-	struct alias *next;
+    struct alias *next;
 };
 
 extern bool con_opened;

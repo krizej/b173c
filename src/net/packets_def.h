@@ -1,21 +1,23 @@
 #ifndef PACKET
-#   define PACKET_DEFINED
-#	define UBYTE(name)
-#	define BYTE(name)
-#	define SHORT(name)
-#	define INT(name)
-#	define LONG(name)
-#	define FLOAT(name)
-#	define DOUBLE(name)
-#	define STRING8(name)
-#	define STRING16(name)
-#	define BOOL(name)
-#	define METADATA(name)
-#	define WINDOW_ITEMS_PAYLOAD(name)
-#	define OPT(cond, stuff)
-#	define BUF(type, name, size)
-#	define PACKET(id, name, stuff)
+#define PACKET_DEFINED
+#define UBYTE(name)
+#define BYTE(name)
+#define SHORT(name)
+#define INT(name)
+#define LONG(name)
+#define FLOAT(name)
+#define DOUBLE(name)
+#define STRING8(name)
+#define STRING16(name)
+#define BOOL(name)
+#define METADATA(name)
+#define WINDOW_ITEMS_PAYLOAD(name)
+#define OPT(cond, stuff)
+#define BUF(type, name, size)
+#define PACKET(id, name, stuff)
 #endif // #ifndef PACKET
+
+// clang-format off
 
 PACKET(0x01, login_request,
        INT(entity_id_or_protocol_version)
@@ -417,20 +419,22 @@ PACKET(0xFF, disconnect,
        STRING16(reason)
 )
 
+// clang-format on
+
 #ifdef PACKET_DEFINED
-#   undef UBYTE
-#   undef BYTE
-#   undef SHORT
-#   undef INT
-#   undef LONG
-#   undef FLOAT
-#   undef DOUBLE
-#   undef STRING8
-#   undef STRING16
-#   undef BOOL
-#   undef METADATA
-#   undef WINDOW_ITEMS_PAYLOAD
-#   undef OPT
-#   undef BUF
-#   undef PACKET
+#undef UBYTE
+#undef BYTE
+#undef SHORT
+#undef INT
+#undef LONG
+#undef FLOAT
+#undef DOUBLE
+#undef STRING8
+#undef STRING16
+#undef BOOL
+#undef METADATA
+#undef WINDOW_ITEMS_PAYLOAD
+#undef OPT
+#undef BUF
+#undef PACKET
 #endif

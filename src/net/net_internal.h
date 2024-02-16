@@ -8,7 +8,10 @@
 
 // ni - net internal
 // wi - window items
-struct ni_wi_payload { int16_t item_id, metadata; int8_t count; };
+struct ni_wi_payload {
+    int16_t item_id, metadata;
+    int8_t count;
+};
 
 void net_read_buf(void *dest, size_t n);
 byte net_read_byte(void);

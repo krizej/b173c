@@ -5,8 +5,8 @@
 #include "game/world.h"
 
 struct gl_state {
-	int w, h;
-	uint shader_blocks, shader_text, shader_model;
+    int w, h;
+    uint shader_blocks, shader_text, shader_model;
 };
 
 void vid_init(void);

@@ -1,8 +1,8 @@
 CC := gcc
 CFLAGS := -ggdb3 -Iinclude -Isubmodules
 WARNINGS := -Wall -Wpedantic -Wextra
-WARNINGS += -Wdeclaration-after-statement    # style
-WARNINGS += -Wno-missing-field-initializers  # cvar issues
+WARNINGS += -Wdeclaration-after-statement # style
+WARNINGS += -Wno-missing-field-initializers # cvar issues
 LDFLAGS := -lm
 
 # add SDL2

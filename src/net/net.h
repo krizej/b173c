@@ -5,17 +5,17 @@
 #include <uchar.h>
 
 typedef struct {
-	int16_t length;
-	char16_t *data;
+    int16_t length;
+    char16_t *data;
 } string16;
 
 typedef struct {
-	int16_t length;
-	char *data;
+    int16_t length;
+    char *data;
 } string8;
 
 struct net_entity_metadata {
-	int idk;
+    int idk;
 };
 
 void net_init(void);
