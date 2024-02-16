@@ -57,7 +57,7 @@ $(DEPS):
 
 $(OBJ_DIR)/%.o: %.c $(HDR_FILES) $(DEPS)
 	./mkdirs.sh $@
-	$(CC) -c $(CFLAGS) $(LDFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $<
 # }
 
 all: $(OBJ_DIR) $(BUILD_DIR) $(TARGET)
@@ -76,14 +76,14 @@ $(BUILD_DIR):
 # dont care about warnings from src/ext/
 $(OBJ_DIR)/ext/%.o: $(SRC_DIR)/ext/%.c $(HDR_FILES)
 	./mkdirs.sh $@
-	$(CC) -c $(CFLAGS) $(LDFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $< $(LDFLAGS)
 
 
 # project sources (c)
 # {
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HDR_FILES) $(DEPS)
 	./mkdirs.sh $@
-	$(CC) -c $(CFLAGS) $(WARNINGS) $(LDFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) $(WARNINGS) -o $@ $< $(LDFLAGS)
 # }
 
 # project sources (glsl)
@@ -92,7 +92,7 @@ $(SHADER_SOURCES): $(SHADER_FILES)
 	$(PY) $(SHADER_PREP) $@ $^
 
 $(SHADER_SOURCES_OBJ): $(SHADER_SOURCES)
-	$(CC) -c $(CFLAGS) $(LDFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $< $(LDFLAGS)
 # }
 
 # assets
@@ -101,9 +101,9 @@ $(ASSET_SOURCES): $(ASSET_FILES)
 	$(PY) $(ASSET_PREP) $@ $^
 
 $(ASSET_SOURCES_OBJ): $(ASSET_SOURCES)
-	$(CC) -c $(CFLAGS) $(LDFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $< $(LDFLAGS)
 # }
 
 # final binary
 $(TARGET): $(OBJ_FILES)
-	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $^
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)

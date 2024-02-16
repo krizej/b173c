@@ -3,6 +3,7 @@
 #include "common.h"
 #include "vid/ui.h"
 #include "cvar.h"
+#include <string.h>
 
 struct cmd *cmdlist = NULL;
 struct alias *aliaslist = NULL;

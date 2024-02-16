@@ -4,6 +4,7 @@
 #include "input.h"
 #include "vid/vid.h"
 #include "common.h"
+#include <string.h>
 
 #define CONSOLE_MAX_LINES 512
 #define CONSOLE_MAX_LINE 256
