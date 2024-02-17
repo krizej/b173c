@@ -115,7 +115,7 @@ void vid_init(void)
 		con_printf("SDL error: %s", SDL_GetError());
 
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, true);
-	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 3);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
 
