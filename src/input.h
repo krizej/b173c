@@ -24,11 +24,11 @@ struct gamekeys {
 };
 
 struct key_status {
-    bool pressed       : 1;       // this is true while the key is pressed
-    bool just_pressed  : 1;  // this is only true for 1 frame
+    bool pressed       : 1; // this is true while the key is pressed
+    bool just_pressed  : 1; // this is only true for 1 frame
     bool just_released : 1; // this is only true for 1 frame
     bool echo : 1; // like just_pressed, except it allows for repetitions
-    char *binding; // the console command bound to this key
+    char *binding;          // the console command bound to this key
 };
 
 extern struct key_status input_keys[512]; // use KEY_* as the index

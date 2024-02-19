@@ -94,7 +94,11 @@ static uint load_shader(const char *vs, const char *fs)
 	return check_program_compile(h_prog, h_vs, h_fs);
 }
 
-void gl_debug_message(GLenum source attr(unused), GLenum type, GLuint id attr(unused), GLenum severity, GLsizei length attr(unused), const GLchar *message, const void *userParam attr(unused))
+// TODO: make this nicer
+void gl_debug_message(GLenum source attr(unused), GLenum type,
+                      GLuint id attr(unused), GLenum severity,
+                      GLsizei length attr(unused), const GLchar *message,
+                      const void *userParam attr(unused))
 {
 	fprintf(stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
 			(type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : ""),
@@ -111,8 +115,8 @@ void vid_init(void)
 
 	/* ----- SDL INIT ----- */
 	ok = SDL_Init(SDL_INIT_VIDEO);
-	if(ok < 0)
-		con_printf("SDL error: %s", SDL_GetError());
+	if(ok < 0) // FIX DEEZ ERROR MSGS!!!!
+        con_printf("SDL error: %s", SDL_GetError()); 
 
 	SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, true);
 	SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);

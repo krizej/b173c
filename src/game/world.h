@@ -7,6 +7,7 @@
 #include "block.h"
 #include "entity.h"
 
+// todo: start using this xd
 #define WORLD_CHUNK_SIZE   16
 #define WORLD_CHUNK_HEIGHT 128
 
@@ -16,18 +17,22 @@
 typedef struct {
     int x, z;
 
-    /* heap allocated, always has WORLD_CHUNK_SIZE * WORLD_CHUNK_SIZE *
-     * WORLD_CHUNK_HEIGHT elements */
+    /* heap allocated, always has
+     * WORLD_CHUNK_SIZE * WORLD_CHUNK_SIZE * WORLD_CHUNK_HEIGHT
+     * elements */
     block_data *data;
 
     /* rendering related */
-    bool needs_remesh; // TODO: needs_remesh_simple (1x1x1 blocks),
- // needs_remesh_complex (doors crops etc)
+    bool needs_remesh;
+    // TODO: needs_remesh_simple (1x1x1 blocks)
+    // TODO: needs_remesh_complex (doors crops etc)
     bool visible;
     struct world_chunk_glbuf {
         bool visible;
         bool needs_remesh;
         struct world_vertex {
+            // see TODOs above, this should be set back to 5 bits per coord
+            // and floats should be used for the complex mesh
             float x; // ubyte x : 5;
             float y; // ubyte y : 5;
             float z; // ubyte z : 5;
@@ -48,8 +53,8 @@ extern struct hashmap *world_chunk_map;
 
 void world_init(void);
 void world_shutdown(void); // todo: rename me to cleanup or something?
-#define world_is_init() \
-    (cl.state == cl_connected && world_chunk_map != NULL) // fixme
+// fixme
+#define world_is_init() (cl.state == cl_connected && world_chunk_map != NULL)
 
 /* chunks */
 void world_alloc_chunk(int chunk_x, int chunk_z);
@@ -60,8 +65,8 @@ void world_mark_region_for_remesh(
     int x_start, int y_start, int z_start, int x_end, int y_end, int z_end);
 void world_mark_all_for_remesh(void);
 void world_load_compressed_chunk_data(
-    int x, int y, int z, int size_x, int size_y, int size_z,
-    size_t compressed_size, ubyte *compressed);
+    int x, int y, int z, int size_x, int size_y, int size_z, size_t data_size,
+    ubyte *data);
 
 /* blocks */
 // todo: define in block.c maybe
