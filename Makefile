@@ -66,6 +66,9 @@ clean:
 	rm $(OBJ_DIR) -fr
 	rm $(TARGET) -fr
 
+format:
+	find "src/" -type f -iname "*.c" -o -iname "*.h" -print0 | xargs -0 clang-format -i
+
 $(OBJ_DIR):
 	mkdir $(OBJ_DIR)
 

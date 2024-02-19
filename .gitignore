@@ -1,3 +1,4 @@
 build/
 obj/
-.idea/
+.cache/
+compile_commands.json
