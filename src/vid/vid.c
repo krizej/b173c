@@ -19,9 +19,6 @@ SDL_GLContext glcontext;
 ulong frames_drawn = 0;
 ulong last_check_tick = 0;
 
-// for frametime
-ulong then = 0, now = 0; 
-
 struct gl_state gl;
 
 #define check_shader_compile(shader) check_shader_compile_impl(shader, #shader)
@@ -160,8 +157,6 @@ errcode vid_init(void)
     gl.shader_blocks = load_shader(blocks_v_glsl, blocks_f_glsl);
     gl.shader_model = load_shader(model_v_glsl, model_f_glsl);
     gl.shader_text = load_shader(text_v_glsl, text_f_glsl);
-
-    now = SDL_GetPerformanceCounter();
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);

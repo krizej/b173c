@@ -15,9 +15,10 @@ static char *emptystr = "";
 
 // cmds.c
 void cmds_register(void);
-void cmd_init(void)
+errcode cmd_init(void)
 {
 	cmds_register();
+    return ERR_OK;
 }
 
 char *cmd_argv(int i)

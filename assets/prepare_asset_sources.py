@@ -27,13 +27,14 @@ for asset in assets:
 
 
 f.write("extern struct asset_storage builtin_assets[ASSET_COUNT];\n")
-f.write("void assets_init(void)\n{\n")
+f.write("errcode assets_init(void)\n{\n")
 
 for asset in assets:
     if asset.endswith(".png"):
         name = asset.replace("assets", "asset_texture").replace("/", "_").replace(".png", "")
         f.write(f"builtin_assets[{name.upper()}] = *(struct asset_storage *)&{name};\n")
 
-f.write("}\n")
+        
+f.write("return ERR_OK;\n}\n")
 
 f.close()

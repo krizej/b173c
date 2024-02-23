@@ -42,11 +42,10 @@ void con_hide(void)
 	}
 }
 
-void con_init(void)
+errcode con_init(void)
 {
-	cmd_init();
-
 	cmd_register("toggleconsole", toggleconsole_f);
+	return cmd_init();
 }
 
 static void con_put_char(ubyte c)

@@ -118,7 +118,7 @@ extern struct hashmap *world_entity_map;
 
 void entity_handle_status_update(entity *ent, byte status);
 
-void entity_renderer_init(void);
+errcode entity_renderer_init(void);
 void entity_renderer_shutdown(void);
 void entity_renderer_render(void);
 

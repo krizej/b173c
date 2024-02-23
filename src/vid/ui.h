@@ -8,7 +8,7 @@
 
 extern int ui_w, ui_h;
 
-void ui_init(void);
+errcode ui_init(void);
 void ui_shutdown(void);
 
 void ui_draw(void);   // called before r_display_frame

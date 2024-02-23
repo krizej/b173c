@@ -8,7 +8,7 @@
 #define KEYMOD_ALT      1 << 2
 #define KEYMOD_CAPSLOCK 1 << 3
 
-void in_init(void);
+errcode in_init(void);
 void in_update(void);
 void in_shutdown(void);
 

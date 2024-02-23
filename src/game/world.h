@@ -40,7 +40,7 @@ typedef struct {
             ubyte texture_index;
             ubyte data;
             ushort extradata;
-        } attr(packed) * vertices, *alpha_vertices;
+        } attr(packed) *vertices, *alpha_vertices;
         ushort *indices, *alpha_indices;
         size_t num_vertices, num_alpha_vertices;
         size_t num_indices, num_alpha_indices;
@@ -51,7 +51,7 @@ typedef struct {
 
 extern struct hashmap *world_chunk_map;
 
-void world_init(void);
+errcode world_init(void);
 void world_shutdown(void); // todo: rename me to cleanup or something?
 // fixme
 #define world_is_init() (cl.state == cl_connected && world_chunk_map != NULL)

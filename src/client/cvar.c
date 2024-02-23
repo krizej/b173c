@@ -85,7 +85,7 @@ cvar cl_2b2tmode = {"cl_2b2tmode", "0"};
 cvar ui_scale = {"ui_scale", "2", onchange_ui_scale};
 cvar sensitivity = {"sensitivity", "2.5"};
 
-void cvar_init(void)
+errcode cvar_init(void)
 {
 	cvar_register(&vid_width);
 	cvar_register(&vid_height);
@@ -101,4 +101,6 @@ void cvar_init(void)
 	cvar_register(&cl_2b2tmode);
 	cvar_register(&ui_scale);
 	cvar_register(&sensitivity);
+    
+    return ERR_OK;
 }

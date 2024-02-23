@@ -15,7 +15,7 @@ typedef struct cvar {
     struct cvar *next;
 } cvar;
 
-void cvar_init(void);
+errcode cvar_init(void);
 
 void cvar_register(cvar *c);
 cvar *cvar_find(const char *name);

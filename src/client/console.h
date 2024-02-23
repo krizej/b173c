@@ -42,7 +42,7 @@ struct alias {
 extern bool con_opened;
 extern int con_scroll;
 
-void con_init(void);
+errcode con_init(void);
 bool con_handle_key(int key, int keymod);
 
 void con_show(void);
@@ -52,7 +52,7 @@ void con_printf(char *text, ...);
 
 // cvar/cmd related
 
-void cmd_init(void);
+errcode cmd_init(void);
 void cmd_exec(char *text);
 
 void cmd_register(const char *name, void (*func)(void));
