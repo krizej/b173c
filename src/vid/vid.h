@@ -9,7 +9,7 @@ struct gl_state {
     uint shader_blocks, shader_text, shader_model;
 };
 
-void vid_init(void);
+errcode vid_init(void);
 void vid_shutdown(void);
 void vid_update(void);
 

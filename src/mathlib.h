@@ -56,7 +56,6 @@ typedef struct {
     vec3 mins, maxs;
 } bbox;
 
-// clang-format off
 #define vec3_from(x, y, z) ((vec3){{x, y, z}})
 #define vec3_from1(x)  vec3_from((x), (x), (x))
 #define vec3_add(a, b) vec3_from((a).x + (b).x, (a).y + (b).y, (a).z + (b).z)
@@ -69,7 +68,8 @@ typedef struct {
 // these are not macros because clion could not handle them lololol
 vec3 vec3_normalize(vec3 v);
 vec3 vec3_cross(vec3 a, vec3 b);
-// clang-format on
+
+#define vec4_from(x, y, z, w) ((vec4){{x, y, z, w}})
 
 void mat4_multiply(mat4 dest, mat4 a, mat4 b);
 void mat4_identity(mat4 dest);

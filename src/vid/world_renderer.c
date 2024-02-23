@@ -114,7 +114,14 @@ static void update_view_matrix_and_frustum(void)
 	if(cl.state == cl_connected) {
 		cl.game.look_trace = world_trace_ray(cl.game.pos, forward, 16.0f);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_block_selection_vbo);
-		glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(struct world_vertex), update_block_selection_box(cl.game.look_trace.x, cl.game.look_trace.y, cl.game.look_trace.z), GL_STATIC_DRAW);
+		glBufferData(GL_ARRAY_BUFFER,
+          /* size */ 16 * sizeof(struct world_vertex),
+          /* data */ update_block_selection_box(
+                         cl.game.look_trace.x,
+                         cl.game.look_trace.y,
+                         cl.game.look_trace.z),
+         /* usage */ GL_STATIC_DRAW);
+        
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
@@ -133,7 +140,8 @@ static void update_view_matrix_and_frustum(void)
 
 void recalculate_projection_matrix(void)
 {
-	mat4_projection(proj_mat, fov.value, (vid_width.value / vid_height.value), r_znear.value, r_zfar.value);
+    float aspect = (vid_width.value / vid_height.value);
+	mat4_projection(proj_mat, fov.value, aspect, r_znear.value, r_zfar.value);
 	update_view_matrix_and_frustum();
 }
 
