@@ -224,10 +224,6 @@ errcode in_init(void)
     cmd_register("+sneak", sneakdown_f);
     cmd_register("-sneak", sneakup_f);
 
-    cmd_register("bind", bind_f);
-    cmd_register("bindlist", bindlist_f);
-    cmd_register("unbind", unbind_f);
-
     key_bind(KEY_ESCAPE, "toggleconsole");
 
     return ERR_OK;

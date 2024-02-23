@@ -24,7 +24,6 @@ const char *packet_names[256] = {
 #undef PACKET
 
 static bool init_ok = false;
-static bool cmds_registered = false;
 static bool should_disconnect = false;
 
 static bool read_ok = false;
@@ -76,15 +75,6 @@ errcode net_init(void)
 
     /* set socket to nonblocking */
     setblocking(sockfd, false);
-
-    /* register net-related commands */
-    if(!cmds_registered) {
-        cmd_register("connect", connect_f);
-        cmd_register("disconnect", disconnect_f);
-        cmd_register("say", say_f);
-        cmd_register("respawn", respawn_f);
-        cmds_registered = true;
-    }
 
     init_ok = true;
 
