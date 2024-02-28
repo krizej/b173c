@@ -17,8 +17,6 @@
 #define PACKET(id, name, stuff)
 #endif // #ifndef PACKET
 
-// clang-format off
-
 PACKET(0x01, login_request,
        INT(entity_id_or_protocol_version)
        STRING16(username)
@@ -84,6 +82,7 @@ PACKET(0x0C, player_look,
 )
 
 // stance and y are swapped when sending to server
+// client to server order: y, stance
 PACKET(0x0D, player_look_move,
        DOUBLE(x)
        DOUBLE(stance_or_y)
@@ -418,8 +417,6 @@ PACKET(0xC8, increment_statistic,
 PACKET(0xFF, disconnect,
        STRING16(reason)
 )
-
-// clang-format on
 
 #ifdef PACKET_DEFINED
 #undef UBYTE

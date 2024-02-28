@@ -11,8 +11,7 @@
 #define WORLD_CHUNK_SIZE   16
 #define WORLD_CHUNK_HEIGHT 128
 
-#define IDX_FROM_COORDS(x, y, z) \
-    ((((x) &15) << 11) | (((z) &15) << 7) | ((y) &127))
+#define IDX_FROM_COORDS(x, y, z) ((((x) & 15) << 11) | (((z) & 15) << 7) | ((y) & 127))
 
 typedef struct {
     int x, z;
@@ -71,10 +70,12 @@ void world_load_compressed_chunk_data(
 /* blocks */
 // todo: define in block.c maybe
 block_data world_get_block(int x, int y, int z);
+block_data world_get_blockf(float x, float y, float z);
 void world_set_block(int x, int y, int z, block_data data);
 void world_set_block_id(int x, int y, int z, block_id id);
 void world_set_block_metadata(int x, int y, int z, byte new_metadata);
 ubyte world_get_block_lighting(int x, int y, int z);
+bbox_t *world_get_colliding_blocks(bbox_t box);
 
 /* entities */
 // defined in entity.c
@@ -83,7 +84,7 @@ void world_add_entity(entity *ent); // ent is copied so dw about it
 void world_remove_entity(int entity_id);
 
 /* daylight cycle stuff */
-vec4 world_calculate_sky_color(void); // fixme: 'color' type
+vec4_t world_calculate_sky_color(void); // fixme: 'color' type
 float world_calculate_sun_angle(void);
 float world_calculate_sky_light_modifier(void);
 
@@ -93,7 +94,7 @@ struct trace_result {
     block_data block;
     block_face hit_face;
     bool reached_end;
-} world_trace_ray(vec3 origin, vec3 dir, float max_length);
+} world_trace_ray(vec3_t origin, vec3_t dir, float max_length);
 
 /* rendering */
 void world_renderer_init(void);

@@ -66,20 +66,25 @@ typedef struct {
      (b).id != 65 && (b).id != 66 && (b).id != 69 && (b).id != 75 && \
      (b).id != 76 && (b).id != 77 && (b).id != 78 && (b).id != 83 && \
      (b).id != 90 && (b).id != 93 && (b).id != 94)
+
 #define block_is_empty(b) ((b).id == BLOCK_AIR)
+
 #define block_is_liquid(b)                                          \
     ((b).id == BLOCK_WATER_STILL || (b).id == BLOCK_WATER_MOVING || \
-     (b).id == BLOCK_LAVA_STILL || (b).id == BLOCK_LAVA_MOVING)
+     (b).id == BLOCK_LAVA_STILL  || (b).id == BLOCK_LAVA_MOVING)
+
 #define block_is_collidable(b)  ((b).id != BLOCK_AIR && !block_is_liquid(b))
+
 #define block_is_transparent(b) (block_get_properties(b.id).opaque == 0)
+
 #define block_is_semi_transparent(b)                                \
     ((b).id == BLOCK_WATER_STILL || (b).id == BLOCK_WATER_MOVING || \
      (b).id == BLOCK_ICE)
+
 block_properties block_get_properties(block_id id);
-ubyte block_get_texture_index(
-    block_id id, block_face face, ubyte metadata, int x, int y, int z);
-bool block_should_face_be_rendered(
-    int x, int y, int z, block_data self, block_face face);
+ubyte block_get_texture_index(block_id id, block_face face, ubyte metadata, int x, int y, int z);
+bool block_should_face_be_rendered(int x, int y, int z, block_data self, block_face face);
 float block_fluid_get_height(int x, int y, int z, block_id self_id);
+bbox_t block_get_bbox(block_data block, int x, int y, int z);
 
 #endif

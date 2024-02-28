@@ -3,6 +3,7 @@
 #include "client/client.h"
 #include "client/console.h"
 #include "client/cvar.h"
+#include "../client/client.h"
 
 void net_write_packets(void)
 {
@@ -35,33 +36,36 @@ void net_write_packets(void)
 		cl.game.moved = false;
 		cl.game.rotated = false;
         net_write_pkt_player_look_move((pkt_player_look_move) {
-            .x = cl.game.pos.x,
-            .stance_or_y = cl.game.pos.y,
-            .y_or_stance = cl.game.pos.y + 0.2f,
-            .z = cl.game.pos.z,
-            .yaw = -cl.game.rot.yaw,
-            .pitch = cl.game.rot.pitch,
-            .on_ground = false
+            .x = cl.game.our_ent->position.x,
+            .stance_or_y = cl.game.our_ent->bbox.mins.y,
+            .y_or_stance = cl.game.our_ent->position.y,
+            .z = cl.game.our_ent->position.z,
+            .yaw = -cl.game.our_ent->rotation.yaw,
+            .pitch = cl.game.our_ent->rotation.pitch,
+            .on_ground = cl.game.our_ent->was_onground
         });
 	} else if(cl.game.moved) {
         net_write_pkt_player_move((pkt_player_move) {
-            .x = cl.game.pos.x,
-            .y = cl.game.pos.y,
-            .stance = cl.game.pos.y + 0.2f,
-            .z = cl.game.pos.z,
-            .on_ground = false
+			.x = cl.game.our_ent->position.x,
+			.y = cl.game.our_ent->bbox.mins.y,
+			.stance = cl.game.our_ent->position.y,
+			.z = cl.game.our_ent->position.z,
+			.on_ground = cl.game.our_ent->was_onground
         });
 		cl.game.moved = false;
 	} else if(cl.game.rotated) {
         net_write_pkt_player_look((pkt_player_look) {
-            .pitch = cl.game.rot.pitch,
-            .yaw = -cl.game.rot.yaw,
-            .on_ground = false
+			.yaw = -cl.game.our_ent->rotation.yaw,
+			.pitch = cl.game.our_ent->rotation.pitch,
+			.on_ground = cl.game.our_ent->was_onground
         });
 		cl.game.rotated = false;
 	} else {
-        net_write_pkt_flying((pkt_flying) {.on_ground = false});
+        net_write_pkt_flying((pkt_flying) {
+			.on_ground = cl.game.our_ent->was_onground
+		});
 	}
+	cl.game.our_ent->was_onground = false;
 }
 
 void write_window_items_payload(struct ni_wi_payload data)

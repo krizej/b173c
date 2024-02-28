@@ -557,15 +557,17 @@ void disconnect_f(void)
 {
     if(cl.state != cl_disconnected) {
         if(cl.state == cl_connected) {
-            string16 reason;
-            // set to blocking so the disconnect packet gets sent
+            pkt_disconnect pkt;
+            // set to blocking so the pkt packet gets sent
             // before the socket is closed
             setblocking(sockfd, true);
-            reason = net_make_string16("Quitting");
-            net_write_pkt_disconnect((pkt_disconnect) {
-                    .reason = reason
-                });
-            net_free_string16(reason);
+
+            pkt = (pkt_disconnect) {
+                .reason = net_make_string16("Quitting")
+            };
+            net_write_pkt_disconnect(pkt);
+            net_handle_pkt_disconnect(pkt);
+
             setblocking(sockfd, false);
         }
 

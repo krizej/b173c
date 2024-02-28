@@ -230,7 +230,7 @@ void vid_update(void)
 
 void vid_display_frame(void)
 {
-    vec4 clearcolor = vec4_from(0.0f, 0.0f, 0.0f, 1.0f);
+    vec4_t clearcolor = vec4_from(0.0f, 0.0f, 0.0f, 1.0f);
     if(world_is_init())
         clearcolor = world_calculate_sky_color();
     glClearColor(clearcolor.r, clearcolor.g, clearcolor.b, clearcolor.a);

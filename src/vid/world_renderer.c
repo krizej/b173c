@@ -12,10 +12,8 @@
 
 // todo: mesher thread
 
-#define VIEW_HEIGHT 1.62f
-
-mat4 view_mat = {0};
-mat4 proj_mat = {0};
+mat4_t view_mat = {0};
+mat4_t proj_mat = {0};
 static uint gl_world_vao;
 static uint gl_world_texture; // fixme
 static uint gl_block_selection_vbo;
@@ -23,7 +21,7 @@ static uint loc_chunkpos, loc_proj, loc_view, loc_nightlightmod;
 
 struct {
 	struct plane {
-		vec3 normal;
+		vec3_t normal;
 		float dist;
 	} top, bottom, right, left, far, near;
 } frustum = {0};
@@ -55,12 +53,12 @@ struct world_vertex *update_block_selection_box(float x, float y, float z)
 	return b;
 }
 
-static float get_dist_to_plane(const struct plane *p, vec3 point)
+static float get_dist_to_plane(const struct plane *p, vec3_t point)
 {
 	return vec3_dot(p->normal, point) - p->dist;
 }
 
-static struct plane make_plane(vec3 point, vec3 normal)
+static struct plane make_plane(vec3_t point, vec3_t normal)
 {
 	struct plane p;
 	p.normal = normal;
@@ -68,7 +66,7 @@ static struct plane make_plane(vec3 point, vec3 normal)
 	return p;
 }
 
-static bool is_visible_on_frustum(vec3 point, float radius)
+static bool is_visible_on_frustum(vec3_t point, float radius)
 {
 	return
 		get_dist_to_plane(&frustum.right, point) > -radius &&
@@ -85,34 +83,32 @@ static void update_view_matrix_and_frustum(void)
 {
 	float half_h = r_zfar.value * tanf(DEG2RAD(fov.value) * 0.5f);
 	float half_w = half_h * (vid_width.value / vid_height.value);
-	vec3 right, up, forward;
-	vec3 fwdFar, fwdNear;
-	vec3 tmp;
+	vec3_t right, up, forward;
+	vec3_t fwdFar, fwdNear;
+	vec3_t tmp;
 
-	cl.game.pos.y += VIEW_HEIGHT;
-
-	cam_angles(&forward, &right, &up, cl.game.rot.yaw, cl.game.rot.pitch);
+	cam_angles(&forward, &right, &up, cl.game.our_ent->rotation.yaw, cl.game.our_ent->rotation.pitch);
 	fwdFar = vec3_mul(forward, r_zfar.value);
 	fwdNear = vec3_mul(forward, r_znear.value);
 
 	/* update frustum */
-	frustum.far = make_plane(vec3_add(cl.game.pos, fwdFar), vec3_invert(forward));
-	frustum.near = make_plane(vec3_add(cl.game.pos, fwdNear), forward);
+	frustum.far = make_plane(vec3_add(cl.game.our_ent->position, fwdFar), vec3_invert(forward));
+	frustum.near = make_plane(vec3_add(cl.game.our_ent->position, fwdNear), forward);
 
 	tmp = vec3_mul(right, half_w);
-	frustum.left = make_plane(cl.game.pos, vec3_cross(vec3_sub(fwdFar, tmp), up));
-	frustum.right = make_plane(cl.game.pos, vec3_cross(up, vec3_add(fwdFar, tmp)));
+	frustum.left = make_plane(cl.game.our_ent->position, vec3_cross(vec3_sub(fwdFar, tmp), up));
+	frustum.right = make_plane(cl.game.our_ent->position, vec3_cross(up, vec3_add(fwdFar, tmp)));
 
 	tmp = vec3_mul(up, half_h);
-	frustum.top = make_plane(cl.game.pos, vec3_cross(right, vec3_sub(fwdFar, tmp)));
-	frustum.bottom = make_plane(cl.game.pos, vec3_cross(vec3_add(fwdFar, tmp), right));
+	frustum.top = make_plane(cl.game.our_ent->position, vec3_cross(right, vec3_sub(fwdFar, tmp)));
+	frustum.bottom = make_plane(cl.game.our_ent->position, vec3_cross(vec3_add(fwdFar, tmp), right));
 
 	/* update view matrix */
-	mat4_view(view_mat, cl.game.pos, cl.game.rot);
+	mat4_view(view_mat, cl.game.our_ent->position, cl.game.our_ent->rotation);
 
 	/* update look trace */
 	if(cl.state == cl_connected) {
-		cl.game.look_trace = world_trace_ray(cl.game.pos, forward, 16.0f);
+		cl.game.look_trace = world_trace_ray(cl.game.our_ent->position, forward, 5.0f);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_block_selection_vbo);
 		glBufferData(GL_ARRAY_BUFFER,
           /* size */ 16 * sizeof(struct world_vertex),
@@ -124,8 +120,6 @@ static void update_view_matrix_and_frustum(void)
         
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
-
-	cl.game.pos.y -= VIEW_HEIGHT;
 
 	/* update visibility of chunks */
 	if(world_chunk_map != NULL && hashmap_count(world_chunk_map) > 0) {
@@ -157,7 +151,7 @@ void world_renderer_init(void)
 
 	loc_nightlightmod = glGetUniformLocation(gl.shader_blocks, "NIGHTTIME_LIGHT_MODIFIER");
 
-	/* init vao */
+	/* do_unstuck vao */
 	glGenVertexArrays(1, &gl_world_vao);
 
 	glBindVertexArray(gl_world_vao);
@@ -193,7 +187,7 @@ void world_renderer_shutdown(void)
 
 static void add_block_face(struct world_vertex v, block_face face)
 {
-	vec3 offsets[6][4] = {
+	vec3_t offsets[6][4] = {
 		[BLOCK_FACE_Y_NEG] = {vec3_from(0, 0, 0), vec3_from(0, 0, 1), vec3_from(1, 0, 0), vec3_from(1, 0, 1)},
 		[BLOCK_FACE_Y_POS] = {vec3_from(0, 1, 0), vec3_from(1, 1, 0), vec3_from(0, 1, 1), vec3_from(1, 1, 1)},
 		[BLOCK_FACE_Z_NEG] = {vec3_from(1, 1, 0), vec3_from(0, 1, 0), vec3_from(1, 0, 0), vec3_from(0, 0, 0)},
@@ -235,7 +229,7 @@ void render_fluid(int x, int y, int z, block_data self)
 		block_properties props = block_get_properties(self.id);
 		struct world_vertex v1, v2, v3, v4;
 		ubyte light;
-		//vec3 flowdir; todo
+		//vec3_t flowdir; todo
 		//float flowangle;
 
 		//if(!block_get_fluid_flow_direction(flowdir, x, y, z, self.id)) {
@@ -617,6 +611,7 @@ void world_render(void)
 
 	if(cl.game.rotated || cl.game.moved)
 		recalculate_projection_matrix();
+	update_view_matrix_and_frustum();
 
 	if(!strcasecmp(gl_polygon_mode.string, "GL_LINE"))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -648,7 +643,7 @@ void world_render(void)
 		if(chunk->visible) {
 			/* go from top to bottom so that the gpu can discard pixels of cave meshes which won't be seen */
 			for(int j = 7; j >= 0; j--) {
-				vec3 chunk_pos = vec3_from(chunk->x << 4, j << 4, chunk->z << 4);
+				vec3_t chunk_pos = vec3_from(chunk->x << 4, j << 4, chunk->z << 4);
 				glUniform3fv(loc_chunkpos, 1, chunk_pos.array);
 
 				if(!chunk->glbufs[j].visible || chunk->glbufs[j].num_vertices <= 0)
@@ -667,7 +662,7 @@ void world_render(void)
 		if(chunk->visible) {
 			/* go from top to bottom so that the gpu can discard pixels of cave meshes which won't be seen */
 			for(int j = 7; j >= 0; j--) {
-				vec3 chunk_pos = vec3_from(chunk->x << 4, j << 4, chunk->z << 4);
+				vec3_t chunk_pos = vec3_from(chunk->x << 4, j << 4, chunk->z << 4);
 				glUniform3fv(loc_chunkpos, 1, chunk_pos.array);
 
 				if(!chunk->glbufs[j].visible || chunk->glbufs[j].num_alpha_vertices <= 0)
@@ -681,7 +676,7 @@ void world_render(void)
 
 	/* draw block selection box */
 	if(!cl.game.look_trace.reached_end) {
-		vec3 cp = vec3_from1(-1.0f);
+		vec3_t cp = vec3_from1(-1.0f);
 		glLineWidth(2.0f);
 		glUniform3fv(loc_chunkpos, 1, cp.array);
 		glBindVertexBuffer(0, gl_block_selection_vbo, 0, sizeof(struct world_vertex));

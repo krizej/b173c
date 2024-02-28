@@ -8,6 +8,7 @@
 #include "client/client.h"
 #include "assets.h"
 #include "client/cvar.h"
+#include "../client/client.h"
 
 // arbitrary limit, can be increased safely
 #define MAX_CON_CHARS 8192
@@ -19,14 +20,14 @@ int CON_CHAR_SIZE = _CON_CHAR_SIZE;
 
 int ui_w, ui_h;
 
-vec2 glyph_vertices_original[] = {
+vec2_t glyph_vertices_original[] = {
     {.x=0.0f, .y=0.0f}, {.u=0.0f, .v=0.0f},
     {.x=1.0f, .y=0.0f}, {.u=1.0f, .v=0.0f},
     {.x=0.0f, .y=1.0f}, {.u=0.0f, .v=1.0f},
     {.x=1.0f, .y=1.0f}, {.u=1.0f, .v=1.0f},
 };
 
-vec2 glyph_vertices[] = {
+vec2_t glyph_vertices[] = {
     {.x=0.0f, .y=0.0f}, {.u=0.0f, .v=1.0f},
     {.x=1.0f, .y=0.0f}, {.u=1.0f, .v=1.0f},
     {.x=0.0f, .y=1.0f}, {.u=0.0f, .v=0.0f},
@@ -34,7 +35,7 @@ vec2 glyph_vertices[] = {
 };
 
 float char_widths[256] = {0};
-vec4 text_data[MAX_CON_CHARS] = {0};
+vec4_t text_data[MAX_CON_CHARS] = {0};
 int text_char_count = 0;
 uint gl_ui_font_texture, gl_uniform_con_char_size;
 uint gl_text_vao, gl_text_glyph_vbo = 0, gl_text_data_buffer;
@@ -137,14 +138,14 @@ errcode ui_init(void)
     glBindVertexArray(gl_text_vao);
         glBindBuffer(GL_ARRAY_BUFFER, gl_text_glyph_vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(glyph_vertices), glyph_vertices, GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(vec2), (void *) 0);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(vec2), (void *) sizeof(vec2));
+        glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(vec2_t), (void *) 0);
+        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(vec2_t), (void *) sizeof(vec2_t));
         glEnableVertexAttribArray(0);
         glEnableVertexAttribArray(1);
 
         // instance data
         glBindBuffer(GL_ARRAY_BUFFER, gl_text_data_buffer);
-        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(vec4), (void *) 0);
+        glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, sizeof(vec4_t), (void *) 0);
         glEnableVertexAttribArray(2);
         glVertexAttribDivisor(2, 1);
     glBindVertexArray(0);
@@ -173,12 +174,16 @@ void ui_draw(void)
 void ui_render(void)
 {
     if(developer.integer) {
-        int x = 1;
-        int y = -8 + 1;
+        static float maxy;
+        float x = 1;
+        float y = -8 + 1;
+        if(cl.game.our_ent->position.y > maxy)
+            maxy = cl.game.our_ent->position.y;
         ui_printf(x, y+=8, "b173c 0.0.0 (%lu fps)", cl.fps);
-        ui_printf(x, y+=48, "x: %.14f (%d)", cl.game.pos.x, (int)cl.game.pos.x >> 4);
-        ui_printf(x, y+=8, "y: %.14f", cl.game.pos.y);
-        ui_printf(x, y+=8, "z: %.14f (%d)", cl.game.pos.z, (int)cl.game.pos.z >> 4);
+        ui_printf(x, y+=48, "x: %.14f (%d)", cl.game.our_ent->position.x, (int)cl.game.our_ent->position.x >> 4);
+        ui_printf(x, y+=8, "y: %.14f (%f)", cl.game.our_ent->position.y, maxy);
+        ui_printf(x, y+=8, "z: %.14f (%d)", cl.game.our_ent->position.z, (int)cl.game.our_ent->position.z >> 4);
+        ui_printf(x, y+=8, "state: %d", cl.game.our_ent->onground);
         ui_printf(x, y+=24, "Seed: %ld", cl.game.seed);
         ui_printf(x, y+=8, "Time: %lu (day %lu)", cl.game.time, cl.game.time / 24000);
     }
@@ -192,7 +197,7 @@ void ui_render(void)
 
     glBindBuffer(GL_ARRAY_BUFFER, gl_text_data_buffer);
     // todo: update only parts of the buffer that were changed?
-    glBufferData(GL_ARRAY_BUFFER, text_char_count * sizeof(vec4), text_data, GL_STREAM_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, text_char_count * sizeof(vec4_t), text_data, GL_STREAM_DRAW);
 
     glUniform1i(gl_uniform_con_char_size, CON_CHAR_SIZE);
 

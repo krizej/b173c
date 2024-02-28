@@ -8,8 +8,6 @@
 #include <stdio.h>
 #include <uchar.h>
 
-_Static_assert(__STDC_UTF_16__ == 1, "WHAT THE FUCK");
-
 #define attr(a) __attribute__((__##a##__))
 
 typedef char byte;

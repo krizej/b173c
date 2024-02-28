@@ -5,6 +5,7 @@
 #include "client/cvar.h"
 #include "vid/vid.h"
 #include "net/packets.h"
+#include "../client/client.h"
 
 #define UNPACK_ANGLE(angle) ((float)(angle * 360) / 256.0f)
 #define EMPTY_HANDLER(pkt) void net_handle_ ## pkt (pkt p attr(unused)) {}
@@ -55,8 +56,16 @@ const char *painting_names[PAINTING_TYPE_COUNT] = {
 void net_handle_pkt_login_request(pkt_login_request pkt)
 {
     cl.game.seed = pkt.seed;
-    cl.game.our_id = pkt.entity_id_or_protocol_version;
     cl.state = cl_connected;
+    cl.game.our_ent = world_get_entity(pkt.entity_id_or_protocol_version);
+    if(!cl.game.our_ent) {
+        // create
+        net_handle_pkt_named_entity_spawn((pkt_named_entity_spawn) {
+           .entity_id = pkt.entity_id_or_protocol_version,
+           .name = net_make_string16(cvar_name.string)
+        });
+        cl.game.our_ent = world_get_entity(pkt.entity_id_or_protocol_version);
+    }
 
     vid_unlock_fps();
     con_printf(CON_STYLE_DARK_GREEN"connected!\n");
@@ -96,16 +105,12 @@ void net_handle_pkt_time_update(pkt_time_update pkt)
 }
 
 EMPTY_HANDLER(pkt_player_inventory)
-
-void net_handle_pkt_spawn_position(pkt_spawn_position pkt)
-{
-	cl.game.pos = vec3_from(pkt.x, pkt.y, pkt.z);
-}
-
+EMPTY_HANDLER(pkt_spawn_position)
 EMPTY_HANDLER(pkt_use_entity)
 
 void net_handle_pkt_update_health(pkt_update_health pkt)
 {
+    con_printf("new health %d\n", pkt.new_health);
 	if(pkt.new_health <= 0) {
 		con_printf("u died idiot\n");
 	}
@@ -121,14 +126,24 @@ EMPTY_HANDLER(pkt_player_look)
 
 void net_handle_pkt_player_look_move(pkt_player_look_move pkt)
 {
-	cl.game.pos = vec3_from(pkt.x, pkt.y_or_stance, pkt.z);
-	cl.game.stance = pkt.stance_or_y;
-	cl.game.rot.yaw = -pkt.yaw;
-	cl.game.rot.pitch = pkt.pitch;
+    // server tp'd us back so we made a mistake - correct our position
 
-	// send back or the server gets mad
-    pkt.y_or_stance = cl.game.stance;
-    pkt.stance_or_y = cl.game.pos.y;
+    cl.game.our_ent->y_size = 0;
+    cl.game.our_ent->velocity = vec3_from1(0);
+
+    if(!cl.game.unstuck) {
+        entity_set_position(cl.game.our_ent, vec3_from(pkt.x, pkt.y_or_stance, pkt.z));
+    } else {
+        cl.game.unstuck = false;
+    }
+
+	cl.game.our_ent->rotation.yaw = -pkt.yaw;
+	cl.game.our_ent->rotation.pitch = pkt.pitch;
+
+	// now apologize
+    pkt.stance_or_y = cl.game.our_ent->position.y;
+    pkt.y_or_stance = cl.game.our_ent->position.y + 0.2f;
+
     net_write_pkt_player_look_move(pkt);
 }
 
@@ -150,6 +165,7 @@ void net_handle_pkt_named_entity_spawn(pkt_named_entity_spawn pkt)
     ent.position = vec3_div(vec3_from(pkt.x, pkt.y, pkt.z), 32.0f);
     ent.rotation.yaw = UNPACK_ANGLE(-pkt.yaw);
     ent.rotation.pitch = UNPACK_ANGLE(pkt.pitch);
+    ent.y_offset = 1.62f;
 
     ent.name = mem_alloc(pkt.name.length + 1);
     memcpy(ent.name, utf16toutf8(pkt.name.data, pkt.name.length), pkt.name.length);
@@ -184,7 +200,7 @@ void net_handle_pkt_collect_item(pkt_collect_item pkt)
     if(!ent)
         return;
 
-    if(pkt.collector_entity_id == cl.game.our_id && cl_2b2tmode.integer != 0) {
+    if(pkt.collector_entity_id == cl.game.our_ent->id && cl_2b2tmode.integer != 0) {
         net_write_pkt_chat_message((pkt_chat_message) {
             .message = net_make_string16(va("I just picked up %d %d!\n", ent->item.count, ent->item.id))
         });
@@ -302,7 +318,7 @@ void net_handle_pkt_entity_move(pkt_entity_move pkt)
     if(!ent)
         return;
 
-    ent->position = vec3_add(ent->position, vec3_div(vec3_from(pkt.rel_x, pkt.rel_y, pkt.rel_z), 32.0f));
+    entity_set_position(ent, vec3_add(ent->position, vec3_div(vec3_from(pkt.rel_x, pkt.rel_y, pkt.rel_z), 32.0f)));
 }
 
 void net_handle_pkt_entity_look(pkt_entity_look pkt)
@@ -317,17 +333,13 @@ void net_handle_pkt_entity_look(pkt_entity_look pkt)
 
 void net_handle_pkt_entity_look_move(pkt_entity_look_move pkt)
 {
-    net_handle_pkt_entity_look((pkt_entity_look) {
-        .entity_id = pkt.entity_id,
-        .pitch = pkt.pitch,
-        .yaw = pkt.yaw
-    });
-    net_handle_pkt_entity_move((pkt_entity_move) {
-       .entity_id = pkt.entity_id,
-       .rel_x = pkt.rel_x,
-       .rel_y = pkt.rel_y,
-       .rel_z = pkt.rel_z
-    });
+    entity *ent = world_get_entity(pkt.entity_id);
+    if(!ent)
+        return;
+
+    entity_set_position(ent, vec3_add(ent->position, vec3_div(vec3_from(pkt.rel_x, pkt.rel_y, pkt.rel_z), 32.0f)));
+    ent->rotation.yaw = UNPACK_ANGLE(-pkt.yaw);
+    ent->rotation.pitch = UNPACK_ANGLE(pkt.pitch);
 }
 
 void net_handle_pkt_entity_teleport(pkt_entity_teleport pkt)
@@ -336,7 +348,8 @@ void net_handle_pkt_entity_teleport(pkt_entity_teleport pkt)
     if(!ent)
         return;
 
-    ent->position = vec3_div(vec3_from(pkt.x, pkt.y, pkt.z), 32.0f);
+
+    entity_set_position(ent, vec3_div(vec3_from(pkt.x, pkt.y, pkt.z), 32.0f));
 
     net_handle_pkt_entity_look((pkt_entity_look) {
         .entity_id = pkt.entity_id,
@@ -472,11 +485,13 @@ void net_handle_pkt_update_sign(pkt_update_sign pkt)
 EMPTY_HANDLER(pkt_item_data)
 EMPTY_HANDLER(pkt_increment_statistic)
 
+extern entity dummy_ent;
 void net_handle_pkt_disconnect(pkt_disconnect pkt)
 {
 	con_printf("you got kicked: %s\n", utf16toutf8(pkt.reason.data, pkt.reason.length));
 	cmd_exec("disconnect");
 	cl.state = cl_disconnected;
+    cl.game.our_ent = &dummy_ent;
 
     net_free_string16(pkt.reason);
 }

@@ -4,6 +4,8 @@
 #include "hashmap.c/hashmap.h"
 #include "client/client.h"
 #include "entity.h"
+#include "block.h"
+#include "mathlib.h"
 
 static const block_data AIR_BLOCK_DATA = {.id = 0, .metadata = 0, .skylight = 15, .blocklight = 0};
 static const block_data EMPTY_BLOCK_DATA = {.id = 0, .metadata = 0, .skylight = 0, .blocklight = 0};
@@ -295,6 +297,11 @@ void world_load_compressed_chunk_data(int x, int y, int z, int size_x, int size_
     }
 }
 
+block_data world_get_blockf(float x, float y, float z)
+{
+    return world_get_block((int) floorf(x), (int) floorf(y), (int) floorf(z));
+}
+
 block_data world_get_block(int x, int y, int z)
 {
     static struct {
@@ -317,6 +324,40 @@ block_data world_get_block(int x, int y, int z)
         return cache.chunk->data[IDX_FROM_COORDS(x, y, z)];
     return EMPTY_BLOCK_DATA;
 }
+
+bbox_t *world_get_colliding_blocks(bbox_t box)
+{
+    static bbox_t colliders[64] = {0};
+    size_t n_colliders = 0;
+
+    int x0 = (int) floorf(box.mins.x);
+    int x1 = (int) floorf(box.maxs.x) + 1;
+    int y0 = (int) floorf(box.mins.y);
+    int y1 = (int) floorf(box.maxs.y) + 1;
+    int z0 = (int) floorf(box.mins.z);
+    int z1 = (int) floorf(box.maxs.z) + 1;
+
+    memset(colliders, 0, sizeof(colliders));
+
+    for(int x = x0; x < x1; x++) {
+        for(int z = z0; z < z1; z++) {
+            for(int y = y0 - 1; y < y1; y++) {
+                block_data block = world_get_block(x, y, z);
+                if(block_is_collidable(block)) {
+                    colliders[n_colliders++] = block_get_bbox(block, x, y, z);
+                    if(n_colliders >= 63) {
+                        goto end; // realistically shouldn't happen
+                    }
+                }
+            }
+        }
+    }
+
+    end:
+    colliders[n_colliders] = (bbox_t){vec3_from1(-1), vec3_from1(-1)};
+    return colliders;
+}
+
 
 static ubyte chunk_get_block_lighting(world_chunk *c, int x, int y, int z)
 {
@@ -398,9 +439,9 @@ void world_set_block_metadata(int x, int y, int z, byte new_metadata)
 }
 
 #define is_between(t, a, b) t >= a && t <= b
-vec4 world_calculate_sky_color(void)
+vec4_t world_calculate_sky_color(void)
 {
-    static vec4 color = {.a = 1};
+    static vec4_t color = {.a = 1};
 
     int t = cl.game.time % 24000;
 
@@ -462,14 +503,14 @@ float world_calculate_sky_light_modifier(void)
     return lmod / 15.0f;
 }
 
-struct trace_result world_trace_ray(vec3 origin, vec3 dir, float maxlen)
+struct trace_result world_trace_ray(vec3_t origin, vec3_t dir, float maxlen)
 {
     struct trace_result res = {0};
     float dist = 0.0f;
     int step[3];
     block_face ofsface[3];
-    vec3 delta;
-    vec3 edgedist;
+    vec3_t delta = {0};
+    vec3_t edgedist = {0};
 
     for(int axis = 0; axis < 3; axis++) {
         delta.array[axis] = dir.array[axis] == 0.0f ? 9999.0f : fabsf(1.0f / dir.array[axis]);
@@ -481,7 +522,7 @@ struct trace_result world_trace_ray(vec3 origin, vec3 dir, float maxlen)
         } else {
             step[axis] = 1;
             ofsface[axis] = 0;
-            edgedist.array[axis] = (floorf(origin.array[axis]) + 1.0 - origin.array[axis]) * delta.array[axis];
+            edgedist.array[axis] = (floorf(origin.array[axis]) + 1.0f - origin.array[axis]) * delta.array[axis];
         }
     }
 
@@ -506,13 +547,17 @@ struct trace_result world_trace_ray(vec3 origin, vec3 dir, float maxlen)
             res.hit_face = BLOCK_FACE_Z_NEG + ofsface[2];
         }
 
+        // fixme
+        dist = vec3_len(vec3_sub(vec3_add(res, vec3_from1(0.5f)), origin));
+        if(dist > maxlen)
+            break;
+
         res.block = world_get_block(res.x, res.y, res.z);
         if(block_is_collidable(res.block)) {
             res.reached_end = false;
             break;
         }
 
-        dist += 1.0f;
     }
 
     return res;
@@ -526,7 +571,7 @@ entity *world_get_entity(int entity_id)
 
 void world_add_entity(entity *ent)
 {
-    // todo: init bbox maybe?
+    entity_set_position(ent, ent->position);
     hashmap_set(world_entity_map, ent);
 }
 

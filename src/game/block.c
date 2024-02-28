@@ -5,7 +5,7 @@
 #include "client/client.h"
 #include "client/cvar.h"
 
-enum {
+enum { // this is an enum because of syntax highlighting
 	TRANSPARENT = 0, OPAQUE = 1
 };
 
@@ -219,7 +219,7 @@ ubyte block_get_texture_index(block_id id, block_face face, ubyte metadata, int 
 
 bool block_should_face_be_rendered(int x, int y, int z, block_data self, block_face face)
 {
-	vec3 face_offsets[6] = {
+	vec3_t face_offsets[6] = {
 		[BLOCK_FACE_Y_NEG] = vec3_from(0, -1, 0),
 		[BLOCK_FACE_Y_POS] = vec3_from(0, 1, 0),
 		[BLOCK_FACE_Z_NEG] = vec3_from(0, 0, -1),
@@ -229,7 +229,7 @@ bool block_should_face_be_rendered(int x, int y, int z, block_data self, block_f
 	};
 
 	block_data other;
-	vec3 pos2 = vec3_from(x, y, z);
+	vec3_t pos2 = vec3_from(x, y, z);
 	pos2 = vec3_add(pos2, face_offsets[face]);
 
 	other = world_get_block(pos2.x, pos2.y, pos2.z);
@@ -309,4 +309,12 @@ void onchange_block_render_modes(void)
 	if(world_is_init()) {
 		world_mark_all_for_remesh();
 	}
+}
+
+bbox_t block_get_bbox(block_data block, int x, int y, int z)
+{
+	if(block_get_properties(block.id).render_type == RENDER_CUBE) {
+		return (bbox_t){vec3_from(x, y, z), vec3_from(x + 1, y + 1, z + 1)};
+	}
+	return (bbox_t){vec3_from(x, y, z), vec3_from(x + 1, y + 0.5, z + 1)};
 }

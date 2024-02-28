@@ -13,11 +13,11 @@
 uint gl_vao, gl_vbo;
 uint gl_uniform_model, gl_uniform_view, gl_uniform_projection;
 extern struct gl_state gl;
-extern mat4 view_mat, proj_mat;
+extern mat4_t view_mat, proj_mat;
 
 errcode entity_renderer_init(void)
 {
-    vec3 entity_model_verts[] = {
+    vec3_t entity_model_verts[] = {
             vec3_from(0,0,0),
             vec3_from(1,0,0),
             vec3_from(0,1,0)
@@ -29,7 +29,7 @@ errcode entity_renderer_init(void)
     glBindVertexArray(gl_vao);
         glBindBuffer(GL_ARRAY_BUFFER, gl_vbo);
         glBufferData(GL_ARRAY_BUFFER, sizeof(entity_model_verts), entity_model_verts, GL_STATIC_DRAW);
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3), 0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(vec3_t), 0);
         glEnableVertexAttribArray(0);
     glBindVertexArray(0);
 
@@ -62,7 +62,10 @@ void entity_renderer_render(void)
     i = 0;
     while(hashmap_iter(world_entity_map, &i, &it)) {
         entity *ent = it;
-        mat4 model, t, r;
+        mat4_t model, t, r;
+
+        //if(ent == cl.game.our_ent)
+        //    continue;
 
         mat4_identity(t);
         mat4_identity(r);

@@ -7,14 +7,12 @@
 
 extern struct client_state {
     struct {
-        vec3 rot;
-        vec3 pos;
-        float stance;
         bool rotated, moved;
-        int our_id;
+        entity *our_ent;
         long seed;
         long time;
         struct trace_result look_trace;
+        bool unstuck;
     } game;
 
     enum { cl_disconnected, cl_connecting, cl_connected } state;
@@ -24,6 +22,7 @@ extern struct client_state {
 
     ulong fps;
     float frametime;
+    bool is_physframe;
 } cl;
 
 #endif

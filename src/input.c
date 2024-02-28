@@ -240,13 +240,13 @@ static void handle_mouse(int x, int y, int scroll)
         return;
     }
 
-    cl.game.rot.pitch += ((float)(y)) * 0.022f * sensitivity.value;
-    cl.game.rot.yaw -= ((float)(x)) * 0.022f * sensitivity.value;
+    cl.game.our_ent->rotation.pitch += ((float)(y)) * 0.022f * sensitivity.value;
+    cl.game.our_ent->rotation.yaw -= ((float)(x)) * 0.022f * sensitivity.value;
     cl.game.rotated = true;
 
     // limit camera angles
-    cl.game.rot.yaw = fmodf(cl.game.rot.yaw, 360.0f);
-    cl.game.rot.pitch = bound(-90.0f, cl.game.rot.pitch, 90.0f);
+    cl.game.our_ent->rotation.yaw = fmodf(cl.game.our_ent->rotation.yaw, 360.0f);
+    cl.game.our_ent->rotation.pitch = bound(-90.0f, cl.game.our_ent->rotation.pitch, 90.0f);
 }
 
 static void handle_keys(void)
@@ -266,7 +266,7 @@ static void handle_keys(void)
 
     // notify console
     for (key = 0; key < KEY_NUM; key++) {
-        if (con_opened && input_keys[key].echo && (key < KEY_LCTRL || key > KEY_RGUI))
+        if(con_opened && input_keys[key].echo && (key < KEY_LCTRL || key > KEY_RGUI))
             if(con_handle_key(key, keymod))
                 continue;
 
@@ -283,40 +283,38 @@ static void handle_keys(void)
         }
     }
 
-    if(cl.state == cl_connected && !con_opened) {
-        //fixmee rmme
-        float spd = 20.0f;
-        vec3 fwd, side, up;
-        cam_angles(&fwd, &side, &up, cl.game.rot.yaw, 0.0f);
+    if(cl.state == cl_connected) {
+        vec3_t fwd, side, up;
+
+        cam_angles(&fwd, &side, &up, cl.game.our_ent->rotation.yaw, 0.0f);
 
         fwd.y = 0.0f;
         side.y = 0.0f;
 
-        if(gamekeys.forward) {
-            cl.game.pos = vec3_add(cl.game.pos, vec3_mul(fwd, cl.frametime * spd));
-            cl.game.moved = true;
-        } else if(gamekeys.back) {
-            cl.game.pos = vec3_sub(cl.game.pos, vec3_mul(fwd, cl.frametime * spd));
-            cl.game.moved = true;
+        cl.game.our_ent->move_forward = 0;
+        if(gamekeys.forward)
+            cl.game.our_ent->move_forward++;
+        if(gamekeys.back)
+            cl.game.our_ent->move_forward--;
+
+        cl.game.our_ent->move_side = 0;
+        if(gamekeys.right)
+            cl.game.our_ent->move_side++;
+        if(gamekeys.left)
+            cl.game.our_ent->move_side--;
+
+        if(gamekeys.sneak) {
+            cl.game.our_ent->move_forward *= 0.3f;
+            cl.game.our_ent->move_side *= 0.3f;
         }
 
-        if(gamekeys.left) {
-            cl.game.pos = vec3_sub(cl.game.pos, vec3_mul(side, cl.frametime * spd));
-            cl.game.moved = true;
-        } else if(gamekeys.right) {
-            cl.game.pos = vec3_add(cl.game.pos, vec3_mul(side, cl.frametime * spd));
-            cl.game.moved = true;
+
+        if(gamekeys.jump && cl.game.our_ent->onground) {
+            // fixme
+            cl.game.our_ent->onground = false;
+            cl.game.our_ent->velocity.y = 0.42f;
         }
 
-        if(gamekeys.jump) {
-            cl.game.pos.y += cl.frametime * spd;
-            cl.game.stance += cl.frametime * spd;
-            cl.game.moved = true;
-        } else if(gamekeys.sneak) {
-            cl.game.pos.y -= cl.frametime * spd;
-            cl.game.stance -= cl.frametime * spd;
-            cl.game.moved = true;
-        }
     }
 
 }

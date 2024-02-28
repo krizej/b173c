@@ -2,14 +2,14 @@
 #include "common.h"
 #include <math.h>
 
-vec3 vec3_normalize(vec3 v)
+vec3_t vec3_normalize(vec3_t v)
 {
 	return vec3_div(v, vec3_len(v));
 }
 
-vec3 vec3_cross(vec3 a, vec3 b)
+vec3_t vec3_cross(vec3_t a, vec3_t b)
 {
-	vec3 s;
+	vec3_t s;
 
 	s.x = a.y * b.z - a.z * b.y;
 	s.y = a.z * b.x - a.x * b.z;
@@ -18,7 +18,7 @@ vec3 vec3_cross(vec3 a, vec3 b)
 	return vec3_normalize(s);
 }
 
-void mat4_multiply(mat4 dest, mat4 a, mat4 b) {
+void mat4_multiply(mat4_t dest, mat4_t a, mat4_t b) {
 	dest[0][0] = a[0][0] * b[0][0] + a[0][1] * b[1][0] + a[0][2] * b[2][0] + a[0][3] * b[3][0];
 	dest[0][1] = a[0][0] * b[0][1] + a[0][1] * b[1][1] + a[0][2] * b[2][1] + a[0][3] * b[3][1];
 	dest[0][2] = a[0][0] * b[0][2] + a[0][1] * b[1][2] + a[0][2] * b[2][2] + a[0][3] * b[3][2];
@@ -40,7 +40,7 @@ void mat4_multiply(mat4 dest, mat4 a, mat4 b) {
 	dest[3][3] = a[3][0] * b[0][3] + a[3][1] * b[1][3] + a[3][2] * b[2][3] + a[3][3] * b[3][3];
 }
 
-void mat4_identity(mat4 dest)
+void mat4_identity(mat4_t dest)
 {
 	memset(dest, 0, 16 * sizeof(float));
 	for(int i = 0; i < 4; i++) {
@@ -48,14 +48,14 @@ void mat4_identity(mat4 dest)
 	}
 }
 
-void mat4_translation(mat4 dest, vec3 translation)
+void mat4_translation(mat4_t dest, vec3_t translation)
 {
 	dest[3][0] = translation.x;
 	dest[3][1] = translation.y;
 	dest[3][2] = translation.z;
 }
 
-void mat4_rotation(mat4 dest, vec3 rotation)
+void mat4_rotation(mat4_t dest, vec3_t rotation)
 {
 	// https://en.wikipedia.org/wiki/Rotation_matrix#General_3D_rotations
 	// THX
@@ -80,14 +80,14 @@ void mat4_rotation(mat4 dest, vec3 rotation)
 	dest[2][2] = cosa * cosb;
 }
 
-void mat4_scale(mat4 dest, vec3 scale)
+void mat4_scale(mat4_t dest, vec3_t scale)
 {
   dest[0][0] = scale.x;
   dest[1][1] = scale.y;
   dest[2][2] = scale.z;
 }
 
-void cam_angles(vec3 *fwd, vec3 *side, vec3 *up, float yaw, float pitch)
+void cam_angles(vec3_t *fwd, vec3_t *side, vec3_t *up, float yaw, float pitch)
 {
 	float cp, sp, cy, sy;
 	cp = cosf(DEG2RAD(pitch));
@@ -114,9 +114,9 @@ void cam_angles(vec3 *fwd, vec3 *side, vec3 *up, float yaw, float pitch)
 	}
 }
 
-void mat4_view(mat4 dest, vec3 pos, vec3 ang)
+void mat4_view(mat4_t dest, vec3_t pos, vec3_t ang)
 {
-	vec3 x, y, z;
+	vec3_t x, y, z;
 
 	cam_angles(&z, &x, &y, ang.yaw, ang.pitch);
 	z = vec3_invert(z);
@@ -134,7 +134,7 @@ void mat4_view(mat4 dest, vec3 pos, vec3 ang)
 	dest[3][3] = 1.0f;
 }
 
-void mat4_frustrum(mat4 dest, float l, float r, float b, float t, float n, float f)
+void mat4_frustrum(mat4_t dest, float l, float r, float b, float t, float n, float f)
 {
 	float z2, dw, dh, dz;
 
@@ -153,10 +153,24 @@ void mat4_frustrum(mat4 dest, float l, float r, float b, float t, float n, float
 	dest[3][2] = (-z2 * f) / dz;
 }
 
-void mat4_projection(mat4 dest, float fov, float aspect, float znear, float zfar)
+void mat4_projection(mat4_t dest, float fov, float aspect, float znear, float zfar)
 {
 	float ymax, xmax;
 	ymax = znear * tanf(DEG2RAD(fov) * 0.5f);
 	xmax = ymax * aspect;
 	mat4_frustrum(dest, -xmax, xmax, -ymax, ymax, znear, zfar);
+}
+
+bbox_t bbox_offset(bbox_t bbox, vec3_t offset)
+{
+	bbox_t ret = bbox;
+	ret.mins = vec3_add(ret.mins, offset);
+	ret.maxs = vec3_add(ret.maxs, offset);
+	return ret;
+}
+
+bool bbox_null(bbox_t bbox)
+{
+	return bbox.mins.x == -1 && bbox.mins.y == -1 && bbox.mins.z == -1 &&
+		   bbox.maxs.x == -1 && bbox.maxs.y == -1 && bbox.maxs.z == -1;
 }

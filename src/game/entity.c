@@ -29,3 +29,16 @@ void entity_handle_status_update(entity *ent, byte status)
         }
     }
 }
+
+void entity_set_position(entity *ent, vec3_t pos)
+{
+    // size for a player tho
+    float w = 0.6f / 2.0f;
+    float h = 1.8f / 2.0f;
+
+    ent->position = pos;
+    ent->bbox = (bbox_t) {
+        .mins = vec3_from(pos.x - w, pos.y - ent->y_offset + ent->y_size, pos.z - w),
+        .maxs = vec3_from(pos.x + w, pos.y - ent->y_offset + ent->y_size + h, pos.z + w)
+    };
+}

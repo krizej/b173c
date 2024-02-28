@@ -10,7 +10,8 @@
 #include "assets.h"
 #include "client/cvar.h"
 
-struct client_state cl = {0};
+entity dummy_ent = {0};
+struct client_state cl = {.game.our_ent = &dummy_ent};
 void *_mem_alloc_impl(size_t sz, const char *file, int line)
 {
     void *ptr = calloc(sz, 1);
@@ -74,6 +75,28 @@ do {                                                    \
         con_printf("%s: %s\n", #func, errmsgs[err]);    \
 } while(0)
 
+void check_stuck(void)
+{
+    // server spawns us in blocks :/
+    if(world_is_init()) {
+        entity *ent = cl.game.our_ent;
+        bbox_t *colliders = world_get_colliding_blocks(cl.game.our_ent->bbox);
+
+        if(bbox_null(*colliders)) {
+            // not yet (or at all)
+            return;
+        }
+
+        while(!bbox_null(*colliders)) {
+            entity_set_position(ent, vec3_add(ent->position, vec3_from(0, 1, 0)));
+            colliders = world_get_colliding_blocks(cl.game.our_ent->bbox);
+        }
+
+        cl.game.moved = true;
+        cl.game.unstuck = true;
+    }
+}
+
 int main(void)
 {
     float phys_timeout = 0.0f;
@@ -83,6 +106,7 @@ int main(void)
     
     cmd_exec("exec config");
     cmd_exec("exec autoexec");
+    cmd_register("unstuck", check_stuck);
     
     INIT(assets_init);
     INIT(in_init);
@@ -93,15 +117,19 @@ int main(void)
     INIT(world_init);
 
     while(!cl.done) {
-        cl.frametime = calc_frametime();
-
-        in_update();
-
+        cl.is_physframe = false;
         phys_timeout -= cl.frametime;
         if(phys_timeout <= 0.0f) {
+            cl.is_physframe = true;
+
             net_process();
+
+
             phys_timeout = 0.05f; // 20 updates per second
         }
+
+        in_update();
+        entity_update(cl.game.our_ent, cl.frametime);
 
         vid_update();
         ui_draw();
@@ -110,6 +138,7 @@ int main(void)
         if(!cl.active) { // todo: sys_inactivesleep cvar
             SDL_Delay(25);
         }
+        cl.frametime = calc_frametime();
     }
 
     net_shutdown();
