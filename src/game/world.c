@@ -299,7 +299,7 @@ void world_load_compressed_chunk_data(int x, int y, int z, int size_x, int size_
 
 block_data world_get_blockf(float x, float y, float z)
 {
-    return world_get_block((int)(x), (int)(y), (int)(z));
+    return world_get_block((int)floorf(x), (int)floorf(y), (int)floorf(z));
 }
 
 block_data world_get_block(int x, int y, int z)
