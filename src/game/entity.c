@@ -42,3 +42,15 @@ void entity_set_position(entity *ent, vec3_t pos)
         .maxs = vec3(pos.x + w, pos.y - ent->eye_offset + ent->smooth_step_view_height_offset + h, pos.z + w)
     };
 }
+
+bool entity_in_water(entity *ent)
+{
+    block_data block = world_get_blockf(ent->position.x, ent->bbox.mins.y+0.4f, ent->position.z);
+    return block.id == BLOCK_WATER_MOVING || block.id == BLOCK_WATER_STILL;
+}
+
+bool entity_in_lava(entity *ent)
+{
+    block_data block = world_get_blockf(ent->position.x, ent->bbox.mins.y+0.4f, ent->position.z);
+    return block.id == BLOCK_LAVA_MOVING || block.id == BLOCK_LAVA_STILL;
+}

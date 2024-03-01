@@ -309,8 +309,12 @@ static void handle_keys(void)
         }
 
 
-        if(gamekeys.jump && cl.game.our_ent->onground) {
-            cl.game.our_ent->velocity.y = 0.42f;
+        if(gamekeys.jump) {
+            if(entity_in_water(cl.game.our_ent) || entity_in_lava(cl.game.our_ent)) {
+                cl.game.our_ent->velocity.y += 0.04f * cl.frametime * 20.0f;
+            } else if(cl.game.our_ent->onground) {
+                cl.game.our_ent->velocity.y = 0.42f;
+            }
         }
 
     }
