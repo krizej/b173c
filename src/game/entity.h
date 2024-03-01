@@ -129,6 +129,7 @@ void entity_handle_status_update(entity *ent, byte status);
 
 bool entity_in_water(entity *ent);
 bool entity_in_lava(entity *ent);
+bool entity_on_ladder(entity *ent);
 
 errcode entity_renderer_init(void);
 void entity_renderer_shutdown(void);

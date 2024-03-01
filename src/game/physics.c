@@ -225,6 +225,8 @@ void entity_update(entity *ent, float dt)
     const float base_friction_ground = 0.91f;
     const float base_friction_water = 0.8f;
     const float base_friction_lava = 0.5f;
+    const float ladder_speed_base = 0.15f;
+    const float ladder_speed_climb = 0.2f;
 
     float friction;
 
@@ -276,7 +278,26 @@ void entity_update(entity *ent, float dt)
         ent->smooth_step_view_height_offset -= ent->smooth_step_view_height_offset * 0.6f * dt;
 
         update_velocity(ent, accel * dt);
+
+        if(entity_on_ladder(ent)) {
+            if(ent->velocity.x < -ladder_speed_base)
+                ent->velocity.x = -ladder_speed_base;
+            if(ent->velocity.x > ladder_speed_base)
+                ent->velocity.x = ladder_speed_base;
+            if(ent->velocity.z < -ladder_speed_base)
+                ent->velocity.z = -ladder_speed_base;
+            if(ent->velocity.z > ladder_speed_base)
+                ent->velocity.z = ladder_speed_base;
+            if(ent->velocity.y < -ladder_speed_base)
+                ent->velocity.y = -ladder_speed_base;
+
+            // todo: if sneaking and going down: vel.y = 0
+        }
+
         move_entity(ent, vec3_mul(ent->velocity, dt));
+
+        if(ent->collided_horizontally && entity_on_ladder(ent))
+            ent->velocity.y = ladder_speed_climb;
 
         // gravity
         ent->velocity.y -= gravity * dt;

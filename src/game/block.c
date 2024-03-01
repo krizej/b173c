@@ -313,6 +313,26 @@ void onchange_block_render_modes(void)
 
 bbox_t block_get_bbox(block_data block, int x, int y, int z)
 {
+	if(block.id == BLOCK_LADDER) {
+		float size = 2.0f / 16.0f;
+		switch(block.metadata) {
+			case BLOCK_FACE_Z_NEG: {
+				return (bbox_t){vec3(x, y, z + 1 - size), vec3(x + 1, y + 1, z + 1)};
+			} break;
+			case BLOCK_FACE_Z_POS: {
+				return (bbox_t){vec3(x, y, z), vec3(x + 1, y + 1, z + size)};
+			} break;
+			case BLOCK_FACE_X_NEG: {
+				return (bbox_t){vec3(x + 1 - size, y, z), vec3(x + 1, y + 1, z + 1)};
+			} break;
+			case BLOCK_FACE_X_POS: {
+				return (bbox_t){vec3(x, y, z), vec3(x + size, y + 1, z + 1)};
+			} break;
+			default: {
+				return (bbox_t){0};
+			} break;
+		}
+	}
 	if(block_get_properties(block.id).render_type == RENDER_CUBE) {
 		return (bbox_t){vec3(x, y, z), vec3(x + 1, y + 1, z + 1)};
 	}

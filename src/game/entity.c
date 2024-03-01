@@ -54,3 +54,9 @@ bool entity_in_lava(entity *ent)
     block_data block = world_get_blockf(ent->position.x, ent->bbox.mins.y+0.4f, ent->position.z);
     return block.id == BLOCK_LAVA_MOVING || block.id == BLOCK_LAVA_STILL;
 }
+
+bool entity_on_ladder(entity *ent)
+{
+    block_data block = world_get_blockf(ent->position.x, ent->bbox.mins.y, ent->position.z);
+    return block.id == BLOCK_LADDER;
+}

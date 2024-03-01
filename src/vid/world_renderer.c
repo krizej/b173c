@@ -28,24 +28,30 @@ struct {
 
 extern struct gl_state gl;
 
-struct world_vertex *update_block_selection_box(float x, float y, float z)
+struct world_vertex *update_block_selection_box(bbox_t box)
 {
 	static struct world_vertex b[16];
 	const float grow = 0.002f;
+	float x0 = box.mins.x - grow;
+	float y0 = box.mins.y - grow;
+	float z0 = box.mins.z - grow;
+	float x1 = box.maxs.x + grow;
+	float y1 = box.maxs.y + grow;
+	float z1 = box.maxs.z + grow;
 
-	b[0] = world_make_vertex(x - grow, y - grow, z - grow, 0, 0, 0);
-	b[1] = world_make_vertex(x + 1 + grow, y - grow, z - grow, 0, 0, 0);
-	b[2] = world_make_vertex(x + 1 + grow, y - grow, z + 1 + grow, 0, 0, 0);
-	b[3] = world_make_vertex(x - grow, y - grow, z + 1 + grow, 0, 0, 0);
+	b[0] = world_make_vertex(x0, y0, z0, 0, 0, 0);
+	b[1] = world_make_vertex(x1, y0, z0, 0, 0, 0);
+	b[2] = world_make_vertex(x1, y0, z1, 0, 0, 0);
+	b[3] = world_make_vertex(x0, y0, z1, 0, 0, 0);
 	b[4] = b[0];
-	b[5] = world_make_vertex(x - grow, y + 1 + grow, z - grow, 0, 0, 0);
-	b[6] = world_make_vertex(x + 1 + grow, y + 1 + grow, z - grow, 0, 0, 0);
+	b[5] = world_make_vertex(x0, y1, z0, 0, 0, 0);
+	b[6] = world_make_vertex(x1, y1, z0, 0, 0, 0);
 	b[7] = b[1];
 	b[8] = b[6];
-	b[9] = world_make_vertex(x + 1 + grow, y + 1 + grow, z + 1 + grow, 0, 0, 0);
+	b[9] = world_make_vertex(x1, y1, z1, 0, 0, 0);
 	b[10] = b[2];
 	b[11] = b[9];
-	b[12] = world_make_vertex(x - grow, y + 1 + grow, z + 1 + grow, 0, 0, 0);
+	b[12] = world_make_vertex(x0, y1, z1, 0, 0, 0);
 	b[13] = b[3];
 	b[14] = b[12];
 	b[15] = b[5];
@@ -121,7 +127,7 @@ static void update_view_matrix_and_frustum(void)
 		glBindBuffer(GL_ARRAY_BUFFER, gl_block_selection_vbo);
 		glBufferData(GL_ARRAY_BUFFER,
          /*  size */ 16 * sizeof(struct world_vertex),
-         /*  data */ update_block_selection_box(vec3_unpack(cl.game.look_trace)),
+         /*  data */ update_block_selection_box(block_get_bbox(cl.game.look_trace.block, vec3_unpack(cl.game.look_trace))),
          /* usage */ GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
