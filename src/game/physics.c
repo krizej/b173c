@@ -73,6 +73,8 @@ static void move_entity(entity *ent, vec3_t vel)
     if(onground2 && (ent->smooth_step_view_height_offset < 0.05f) && (oldvel.x != vel.x || oldvel.z != vel.z)) {
         vec3_t vel_pre_step = vel;
         bbox_t bbox_after_move = ent->bbox;
+        float l1, l2;
+
         vel.x = oldvel.x;
         vel.y = step_height;
         vel.z = oldvel.z;
@@ -94,7 +96,9 @@ static void move_entity(entity *ent, vec3_t vel)
         vel.y = testmove(colliders, ent, vel.y, Y);
         ent->bbox = bbox_offset(ent->bbox, vec3(0.0f, vel.y, 0.0f));
 
-        if(vec3_len(vel_pre_step) >= vec3_len(vel)) {
+        l1 = vel_pre_step.x * vel_pre_step.x + vel_pre_step.z * vel_pre_step.z;
+        l2 = vel.x * vel.x + vel.z * vel.z;
+        if(l1 >= l2) {
             // too far
             vel = vel_pre_step;
             ent->bbox = bbox_after_move;
