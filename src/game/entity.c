@@ -34,7 +34,7 @@ void entity_set_position(entity *ent, vec3_t pos)
 {
     // size for a player tho
     float w = 0.6f / 2.0f;
-    float h = 1.8f / 2.0f;
+    float h = 1.8f;
 
     ent->position = pos;
     ent->bbox = (bbox_t) {
