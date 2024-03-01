@@ -331,7 +331,7 @@ bbox_t *world_get_colliding_blocks(bbox_t box)
     size_t n_colliders = 0;
 
     int x0 = (int)floorf(box.mins.x);
-    int y0 = (int)floorf(box.mins.y);
+    int y0 = (int)floorf(box.mins.y - 0.01f);
     int z0 = (int)floorf(box.mins.z);
     int x1 = (int)floorf(box.maxs.x + 1.0f);
     int y1 = (int)floorf(box.maxs.y + 1.0f);

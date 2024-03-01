@@ -174,17 +174,16 @@ void ui_draw(void)
 void ui_render(void)
 {
     if(developer.integer) {
-        static float maxy;
         float x = 1;
         float y = -8 + 1;
-        if(cl.game.our_ent->position.y > maxy)
-            maxy = cl.game.our_ent->position.y;
         ui_printf(x, y+=8, "b173c 0.0.0 (%lu fps)", cl.fps);
         ui_printf(x, y+=48, "x: %.14f (%d)", cl.game.our_ent->position.x, (int)cl.game.our_ent->position.x >> 4);
-        ui_printf(x, y+=8, "y: %.14f (%f)", cl.game.our_ent->position.y, maxy);
+        ui_printf(x, y+=8, "y: %.14f", cl.game.our_ent->position.y);
         ui_printf(x, y+=8, "z: %.14f (%d)", cl.game.our_ent->position.z, (int)cl.game.our_ent->position.z >> 4);
-        ui_printf(x, y+=8, "state: %d/%d %d/%d", cl.game.our_ent->onground, cl.game.our_ent->was_onground,
-                  cl.game.our_ent->collided_horizontally, cl.game.our_ent->collided_vertically);
+        ui_printf(x, y+=8, "state: %d/%d %d/%d %d", cl.game.our_ent->onground, cl.game.our_ent->was_onground,
+                  cl.game.our_ent->collided_horizontally, cl.game.our_ent->collided_vertically,
+                  entity_in_water(cl.game.our_ent));
+        ui_printf(x, y+=8, "looking at: %d %d %d", vec3_unpack(cl.game.look_trace));
         ui_printf(x, y+=24, "Seed: %ld", cl.game.seed);
         ui_printf(x, y+=8, "Time: %lu (day %lu)", cl.game.time, cl.game.time / 24000);
     }

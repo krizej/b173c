@@ -13,7 +13,7 @@
 
 #define TO_20_TPS(dt) ((dt) * 20.0f)
 
-static float calc_offset(bbox_t self, bbox_t other, float dist, int axis)
+static float calc_max_distance(bbox_t self, bbox_t other, float dist, int axis)
 {
     int axis2 = (axis + 1) % 3;
     int axis3 = (axis + 2) % 3;
@@ -24,14 +24,14 @@ static float calc_offset(bbox_t self, bbox_t other, float dist, int axis)
 
             float off;
             if(dist > 0.0f && other.maxs.array[axis] <= self.mins.array[axis]) {
-                off = self.mins.array[axis] - other.maxs.array[axis];
+                off = self.mins.array[axis] - other.maxs.array[axis] - 0.001f;
                 if(off < dist) {
                     dist = off;
                 }
             }
 
             if(dist < 0.0f && other.mins.array[axis] >= self.maxs.array[axis]) {
-                off = self.maxs.array[axis] - other.mins.array[axis];
+                off = self.maxs.array[axis] - other.mins.array[axis] + 0.001f;
                 if(off > dist) {
                     dist = off;
                 }
@@ -44,7 +44,7 @@ static float calc_offset(bbox_t self, bbox_t other, float dist, int axis)
 static float testmove(bbox_t *colliders, entity *ent, float vel, int axis)
 {
     for(bbox_t *collider = colliders; !bbox_null(*collider); collider++)
-        vel = calc_offset(*collider, ent->bbox, vel, axis);
+        vel = calc_max_distance(*collider, ent->bbox, vel, axis);
     return vel;
 }
 
@@ -110,9 +110,21 @@ static void move_entity(entity *ent, vec3_t vel)
                 dy = ent->bbox.mins.y - bbox_pre_move.mins.y;
             }
             if(dy > 0.0f) {
+                if(developer.integer) // leaving this here because of a nasty bug.....
+                    con_printf("step %f\n", dy);
                 ent->smooth_step_view_height_offset += dy + 0.01f;
             }
         }
+    }
+    ent->collided_horizontally = oldvel.x != vel.x || oldvel.z != vel.z;
+    ent->collided_vertically = oldvel.y != vel.y;
+    ent->onground = oldvel.y != vel.y && oldvel.y < 0.0f;
+    if(ent->onground) {
+        float new = ((float)((int)(ent->bbox.mins.y * 100.0f)) / 100.0f);
+        float diff = ent->bbox.mins.y - new;
+        ent->bbox.mins.y -= diff;
+        ent->bbox.maxs.y -= diff;
+        ent->was_onground = true;
     }
 
     ent->position.x = (ent->bbox.mins.x + ent->bbox.maxs.x) / 2.0f;
@@ -121,14 +133,6 @@ static void move_entity(entity *ent, vec3_t vel)
 
     if(cl_smoothstep.integer) {
         ent->position.y -= ent->smooth_step_view_height_offset;
-    }
-
-    ent->collided_horizontally = oldvel.x != vel.x || oldvel.z != vel.z;
-    ent->collided_vertically = oldvel.y != vel.y;
-
-    ent->onground = oldvel.y != vel.y && oldvel.y < 0.0f;
-    if(ent->onground) {
-        ent->was_onground = true;
     }
 
     if(oldvel.x != vel.x)
