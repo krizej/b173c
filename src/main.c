@@ -123,12 +123,12 @@ int main(void)
             cl.is_physframe = true;
 
             net_process();
+            entity_update(cl.game.our_ent, 0.05f);
 
             phys_timeout = 0.05f; // 20 updates per second
         }
 
         in_update();
-        entity_update(cl.game.our_ent, cl.frametime);
 
         vid_update();
         ui_draw();

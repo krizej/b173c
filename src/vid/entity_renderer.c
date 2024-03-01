@@ -64,8 +64,8 @@ void entity_renderer_render(void)
         entity *ent = it;
         mat4_t model, t, r;
 
-        //if(ent == cl.game.our_ent)
-        //    continue;
+        if(ent == cl.game.our_ent)
+            continue;
 
         mat4_identity(t);
         mat4_identity(r);

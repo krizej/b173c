@@ -87,37 +87,43 @@ static void update_view_matrix_and_frustum(void)
 	vec3_t fwdFar, fwdNear;
 	vec3_t tmp;
 
+	static float accumulated_dt = 0.0f;
+	static vec3_t lerp_pos;
+
+	if(cl.is_physframe)
+		accumulated_dt = 0.0f;
+	tmp = vec3_mul(vec3_sub(cl.game.our_ent->position, cl.game.our_ent->position_old), accumulated_dt * 20.0f);
+	lerp_pos = vec3_add(cl.game.our_ent->position_old, tmp);
+	accumulated_dt += cl.frametime;
+
 	cam_angles(&forward, &right, &up, cl.game.our_ent->rotation.yaw, cl.game.our_ent->rotation.pitch);
 	fwdFar = vec3_mul(forward, r_zfar.value);
 	fwdNear = vec3_mul(forward, r_znear.value);
 
 	/* update frustum */
-	frustum.far = make_plane(vec3_add(cl.game.our_ent->position, fwdFar), vec3_invert(forward));
-	frustum.near = make_plane(vec3_add(cl.game.our_ent->position, fwdNear), forward);
+	frustum.far = make_plane(vec3_add(lerp_pos, fwdFar), vec3_invert(forward));
+	frustum.near = make_plane(vec3_add(lerp_pos, fwdNear), forward);
 
 	tmp = vec3_mul(right, half_w);
-	frustum.left = make_plane(cl.game.our_ent->position, vec3_cross(vec3_sub(fwdFar, tmp), up));
-	frustum.right = make_plane(cl.game.our_ent->position, vec3_cross(up, vec3_add(fwdFar, tmp)));
+	frustum.left = make_plane(lerp_pos, vec3_cross(vec3_sub(fwdFar, tmp), up));
+	frustum.right = make_plane(lerp_pos, vec3_cross(up, vec3_add(fwdFar, tmp)));
 
 	tmp = vec3_mul(up, half_h);
-	frustum.top = make_plane(cl.game.our_ent->position, vec3_cross(right, vec3_sub(fwdFar, tmp)));
-	frustum.bottom = make_plane(cl.game.our_ent->position, vec3_cross(vec3_add(fwdFar, tmp), right));
+	frustum.top = make_plane(lerp_pos, vec3_cross(right, vec3_sub(fwdFar, tmp)));
+	frustum.bottom = make_plane(lerp_pos, vec3_cross(vec3_add(fwdFar, tmp), right));
 
 	/* update view matrix */
-	mat4_view(view_mat, cl.game.our_ent->position, cl.game.our_ent->rotation);
+	mat4_view(view_mat, lerp_pos, cl.game.our_ent->rotation);
 
 	/* update look trace */
 	if(cl.state == cl_connected) {
-		cl.game.look_trace = world_trace_ray(cl.game.our_ent->position, forward, 5.0f);
+		cl.game.look_trace = world_trace_ray(lerp_pos, forward, 5.0f);
 		glBindBuffer(GL_ARRAY_BUFFER, gl_block_selection_vbo);
 		glBufferData(GL_ARRAY_BUFFER,
-          /* size */ 16 * sizeof(struct world_vertex),
-          /* data */ update_block_selection_box(
-                         cl.game.look_trace.x,
-                         cl.game.look_trace.y,
-                         cl.game.look_trace.z),
+         /*  size */ 16 * sizeof(struct world_vertex),
+         /*  data */ update_block_selection_box(vec3_unpack(cl.game.look_trace)),
          /* usage */ GL_STATIC_DRAW);
-        
+
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
@@ -611,7 +617,8 @@ void world_render(void)
 
 	if(cl.game.rotated || cl.game.moved)
 		recalculate_projection_matrix();
-	update_view_matrix_and_frustum();
+	else
+		update_view_matrix_and_frustum();
 
 	if(!strcasecmp(gl_polygon_mode.string, "GL_LINE"))
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
