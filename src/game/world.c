@@ -299,7 +299,7 @@ void world_load_compressed_chunk_data(int x, int y, int z, int size_x, int size_
 
 block_data world_get_blockf(float x, float y, float z)
 {
-    return world_get_block((int) floorf(x), (int) floorf(y), (int) floorf(z));
+    return world_get_block((int)(x), (int)(y), (int)(z));
 }
 
 block_data world_get_block(int x, int y, int z)
@@ -330,12 +330,12 @@ bbox_t *world_get_colliding_blocks(bbox_t box)
     static bbox_t colliders[64] = {0};
     size_t n_colliders = 0;
 
-    int x0 = (int) floorf(box.mins.x);
-    int x1 = (int) floorf(box.maxs.x) + 1;
-    int y0 = (int) floorf(box.mins.y);
-    int y1 = (int) floorf(box.maxs.y) + 1;
-    int z0 = (int) floorf(box.mins.z);
-    int z1 = (int) floorf(box.maxs.z) + 1;
+    int x0 = (int)floorf(box.mins.x);
+    int x1 = (int)floorf(box.maxs.x) + 1;
+    int y0 = (int)floorf(box.mins.y);
+    int y1 = (int)floorf(box.maxs.y) + 1;
+    int z0 = (int)floorf(box.mins.z);
+    int z1 = (int)floorf(box.maxs.z) + 1;
 
     memset(colliders, 0, sizeof(colliders));
 
@@ -354,7 +354,7 @@ bbox_t *world_get_colliding_blocks(bbox_t box)
     }
 
     end:
-    colliders[n_colliders] = (bbox_t){vec3_from1(-1), vec3_from1(-1)};
+    colliders[n_colliders] = (bbox_t){vec3_1(-1), vec3_1(-1)};
     return colliders;
 }
 
@@ -548,7 +548,7 @@ struct trace_result world_trace_ray(vec3_t origin, vec3_t dir, float maxlen)
         }
 
         // fixme
-        dist = vec3_len(vec3_sub(vec3_add(res, vec3_from1(0.5f)), origin));
+        dist = vec3_len(vec3_sub(vec3_add(res, vec3_1(0.5f)), origin));
         if(dist > maxlen)
             break;
 

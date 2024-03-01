@@ -220,16 +220,16 @@ ubyte block_get_texture_index(block_id id, block_face face, ubyte metadata, int 
 bool block_should_face_be_rendered(int x, int y, int z, block_data self, block_face face)
 {
 	vec3_t face_offsets[6] = {
-		[BLOCK_FACE_Y_NEG] = vec3_from(0, -1, 0),
-		[BLOCK_FACE_Y_POS] = vec3_from(0, 1, 0),
-		[BLOCK_FACE_Z_NEG] = vec3_from(0, 0, -1),
-		[BLOCK_FACE_Z_POS] = vec3_from(0, 0, 1),
-		[BLOCK_FACE_X_NEG] = vec3_from(-1, 0, 0),
-		[BLOCK_FACE_X_POS] = vec3_from(1, 0, 0),
+		[BLOCK_FACE_Y_NEG] = vec3(0, -1, 0),
+		[BLOCK_FACE_Y_POS] = vec3(0, 1, 0),
+		[BLOCK_FACE_Z_NEG] = vec3(0, 0, -1),
+		[BLOCK_FACE_Z_POS] = vec3(0, 0, 1),
+		[BLOCK_FACE_X_NEG] = vec3(-1, 0, 0),
+		[BLOCK_FACE_X_POS] = vec3(1, 0, 0),
 	};
 
 	block_data other;
-	vec3_t pos2 = vec3_from(x, y, z);
+	vec3_t pos2 = vec3(x, y, z);
 	pos2 = vec3_add(pos2, face_offsets[face]);
 
 	other = world_get_block(pos2.x, pos2.y, pos2.z);
@@ -314,7 +314,7 @@ void onchange_block_render_modes(void)
 bbox_t block_get_bbox(block_data block, int x, int y, int z)
 {
 	if(block_get_properties(block.id).render_type == RENDER_CUBE) {
-		return (bbox_t){vec3_from(x, y, z), vec3_from(x + 1, y + 1, z + 1)};
+		return (bbox_t){vec3(x, y, z), vec3(x + 1, y + 1, z + 1)};
 	}
-	return (bbox_t){vec3_from(x, y, z), vec3_from(x + 1, y + 0.5, z + 1)};
+	return (bbox_t){vec3(x, y, z), vec3(x + 1, y + 0.5, z + 1)};
 }

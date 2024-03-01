@@ -128,11 +128,11 @@ void net_handle_pkt_player_look_move(pkt_player_look_move pkt)
 {
     // server tp'd us back so we made a mistake - correct our position
 
-    cl.game.our_ent->y_size = 0;
-    cl.game.our_ent->velocity = vec3_from1(0);
+    cl.game.our_ent->smooth_step_view_height_offset = 0;
+    cl.game.our_ent->velocity = vec3_1(0);
 
     if(!cl.game.unstuck) {
-        entity_set_position(cl.game.our_ent, vec3_from(pkt.x, pkt.y_or_stance, pkt.z));
+        entity_set_position(cl.game.our_ent, vec3(pkt.x, pkt.stance_or_y, pkt.z));
     } else {
         cl.game.unstuck = false;
     }
@@ -162,10 +162,10 @@ void net_handle_pkt_named_entity_spawn(pkt_named_entity_spawn pkt)
     entity ent = {0};
     ent.type = ENTITY_PLAYER;
     ent.id = pkt.entity_id;
-    ent.position = vec3_div(vec3_from(pkt.x, pkt.y, pkt.z), 32.0f);
+    ent.position = vec3_div(vec3(pkt.x, pkt.y, pkt.z), 32.0f);
     ent.rotation.yaw = UNPACK_ANGLE(-pkt.yaw);
     ent.rotation.pitch = UNPACK_ANGLE(pkt.pitch);
-    ent.y_offset = 1.62f;
+    ent.eye_offset = 1.62f;
 
     ent.name = mem_alloc(pkt.name.length + 1);
     memcpy(ent.name, utf16toutf8(pkt.name.data, pkt.name.length), pkt.name.length);
@@ -301,7 +301,7 @@ void net_handle_pkt_entity_velocity(pkt_entity_velocity pkt)
     if(!ent)
         return;
 
-    ent->velocity = vec3_div(vec3_from(pkt.velocity_x, pkt.velocity_y, pkt.velocity_z), 8000.0f);
+    ent->velocity = vec3_div(vec3(pkt.velocity_x, pkt.velocity_y, pkt.velocity_z), 8000.0f);
 }
 
 void net_handle_pkt_destroy_entity(pkt_destroy_entity pkt)
@@ -318,7 +318,7 @@ void net_handle_pkt_entity_move(pkt_entity_move pkt)
     if(!ent)
         return;
 
-    entity_set_position(ent, vec3_add(ent->position, vec3_div(vec3_from(pkt.rel_x, pkt.rel_y, pkt.rel_z), 32.0f)));
+    entity_set_position(ent, vec3_add(ent->position, vec3_div(vec3(pkt.rel_x, pkt.rel_y, pkt.rel_z), 32.0f)));
 }
 
 void net_handle_pkt_entity_look(pkt_entity_look pkt)
@@ -337,7 +337,7 @@ void net_handle_pkt_entity_look_move(pkt_entity_look_move pkt)
     if(!ent)
         return;
 
-    entity_set_position(ent, vec3_add(ent->position, vec3_div(vec3_from(pkt.rel_x, pkt.rel_y, pkt.rel_z), 32.0f)));
+    entity_set_position(ent, vec3_add(ent->position, vec3_div(vec3(pkt.rel_x, pkt.rel_y, pkt.rel_z), 32.0f)));
     ent->rotation.yaw = UNPACK_ANGLE(-pkt.yaw);
     ent->rotation.pitch = UNPACK_ANGLE(pkt.pitch);
 }
@@ -349,7 +349,7 @@ void net_handle_pkt_entity_teleport(pkt_entity_teleport pkt)
         return;
 
 
-    entity_set_position(ent, vec3_div(vec3_from(pkt.x, pkt.y, pkt.z), 32.0f));
+    entity_set_position(ent, vec3_div(vec3(pkt.x, pkt.y, pkt.z), 32.0f));
 
     net_handle_pkt_entity_look((pkt_entity_look) {
         .entity_id = pkt.entity_id,

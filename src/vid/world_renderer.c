@@ -188,12 +188,12 @@ void world_renderer_shutdown(void)
 static void add_block_face(struct world_vertex v, block_face face)
 {
 	vec3_t offsets[6][4] = {
-		[BLOCK_FACE_Y_NEG] = {vec3_from(0, 0, 0), vec3_from(0, 0, 1), vec3_from(1, 0, 0), vec3_from(1, 0, 1)},
-		[BLOCK_FACE_Y_POS] = {vec3_from(0, 1, 0), vec3_from(1, 1, 0), vec3_from(0, 1, 1), vec3_from(1, 1, 1)},
-		[BLOCK_FACE_Z_NEG] = {vec3_from(1, 1, 0), vec3_from(0, 1, 0), vec3_from(1, 0, 0), vec3_from(0, 0, 0)},
-		[BLOCK_FACE_Z_POS] = {vec3_from(0, 1, 1), vec3_from(1, 1, 1), vec3_from(0, 0, 1), vec3_from(1, 0, 1)},
-		[BLOCK_FACE_X_NEG] = {vec3_from(0, 1, 0), vec3_from(0, 1, 1), vec3_from(0, 0, 0), vec3_from(0, 0, 1)},
-		[BLOCK_FACE_X_POS] = {vec3_from(1, 1, 1), vec3_from(1, 1, 0), vec3_from(1, 0, 1), vec3_from(1, 0, 0)}
+		[BLOCK_FACE_Y_NEG] = {vec3(0, 0, 0), vec3(0, 0, 1), vec3(1, 0, 0), vec3(1, 0, 1)},
+		[BLOCK_FACE_Y_POS] = {vec3(0, 1, 0), vec3(1, 1, 0), vec3(0, 1, 1), vec3(1, 1, 1)},
+		[BLOCK_FACE_Z_NEG] = {vec3(1, 1, 0), vec3(0, 1, 0), vec3(1, 0, 0), vec3(0, 0, 0)},
+		[BLOCK_FACE_Z_POS] = {vec3(0, 1, 1), vec3(1, 1, 1), vec3(0, 0, 1), vec3(1, 0, 1)},
+		[BLOCK_FACE_X_NEG] = {vec3(0, 1, 0), vec3(0, 1, 1), vec3(0, 0, 0), vec3(0, 0, 1)},
+		[BLOCK_FACE_X_POS] = {vec3(1, 1, 1), vec3(1, 1, 0), vec3(1, 0, 1), vec3(1, 0, 0)}
 	};
 
 	struct world_vertex tl, tr, bl, br;
@@ -591,7 +591,7 @@ void world_renderer_update_chunk_visibility(world_chunk *chunk)
 		struct world_chunk_glbuf *glbuf = &chunk->glbufs[bufidx];
 		int y_center = bufidx * WORLD_CHUNK_SIZE + WORLD_CHUNK_SIZE / 2;
 
-		glbuf->visible = is_visible_on_frustum(vec3_from(x_center, y_center, z_center), cube_diagonal_half);
+		glbuf->visible = is_visible_on_frustum(vec3(x_center, y_center, z_center), cube_diagonal_half);
 
 		/* if at least 1 glbuf is visible, mark the chunk as visible too */
 		if(glbuf->visible) {
@@ -643,7 +643,7 @@ void world_render(void)
 		if(chunk->visible) {
 			/* go from top to bottom so that the gpu can discard pixels of cave meshes which won't be seen */
 			for(int j = 7; j >= 0; j--) {
-				vec3_t chunk_pos = vec3_from(chunk->x << 4, j << 4, chunk->z << 4);
+				vec3_t chunk_pos = vec3(chunk->x << 4, j << 4, chunk->z << 4);
 				glUniform3fv(loc_chunkpos, 1, chunk_pos.array);
 
 				if(!chunk->glbufs[j].visible || chunk->glbufs[j].num_vertices <= 0)
@@ -662,7 +662,7 @@ void world_render(void)
 		if(chunk->visible) {
 			/* go from top to bottom so that the gpu can discard pixels of cave meshes which won't be seen */
 			for(int j = 7; j >= 0; j--) {
-				vec3_t chunk_pos = vec3_from(chunk->x << 4, j << 4, chunk->z << 4);
+				vec3_t chunk_pos = vec3(chunk->x << 4, j << 4, chunk->z << 4);
 				glUniform3fv(loc_chunkpos, 1, chunk_pos.array);
 
 				if(!chunk->glbufs[j].visible || chunk->glbufs[j].num_alpha_vertices <= 0)
@@ -676,7 +676,7 @@ void world_render(void)
 
 	/* draw block selection box */
 	if(!cl.game.look_trace.reached_end) {
-		vec3_t cp = vec3_from1(-1.0f);
+		vec3_t cp = vec3_1(-1.0f);
 		glLineWidth(2.0f);
 		glUniform3fv(loc_chunkpos, 1, cp.array);
 		glBindVertexBuffer(0, gl_block_selection_vbo, 0, sizeof(struct world_vertex));

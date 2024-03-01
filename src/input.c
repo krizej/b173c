@@ -310,8 +310,6 @@ static void handle_keys(void)
 
 
         if(gamekeys.jump && cl.game.our_ent->onground) {
-            // fixme
-            cl.game.our_ent->onground = false;
             cl.game.our_ent->velocity.y = 0.42f;
         }
 

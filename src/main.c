@@ -88,7 +88,7 @@ void check_stuck(void)
         }
 
         while(!bbox_null(*colliders)) {
-            entity_set_position(ent, vec3_add(ent->position, vec3_from(0, 1, 0)));
+            entity_set_position(ent, vec3_add(ent->position, vec3(0, 1, 0)));
             colliders = world_get_colliding_blocks(cl.game.our_ent->bbox);
         }
 
@@ -123,7 +123,6 @@ int main(void)
             cl.is_physframe = true;
 
             net_process();
-
 
             phys_timeout = 0.05f; // 20 updates per second
         }

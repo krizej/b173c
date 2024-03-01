@@ -38,7 +38,7 @@ void entity_set_position(entity *ent, vec3_t pos)
 
     ent->position = pos;
     ent->bbox = (bbox_t) {
-        .mins = vec3_from(pos.x - w, pos.y - ent->y_offset + ent->y_size, pos.z - w),
-        .maxs = vec3_from(pos.x + w, pos.y - ent->y_offset + ent->y_size + h, pos.z + w)
+        .mins = vec3(pos.x - w, pos.y - ent->eye_offset + ent->smooth_step_view_height_offset, pos.z - w),
+        .maxs = vec3(pos.x + w, pos.y - ent->eye_offset + ent->smooth_step_view_height_offset + h, pos.z + w)
     };
 }

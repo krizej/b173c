@@ -37,5 +37,6 @@ extern cvar cvar_name;
 extern cvar cl_2b2tmode;
 extern cvar ui_scale;
 extern cvar sensitivity;
+extern cvar cl_smoothstep;
 
 #endif

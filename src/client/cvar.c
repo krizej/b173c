@@ -84,6 +84,7 @@ cvar cvar_name = {"name", "player"};
 cvar cl_2b2tmode = {"cl_2b2tmode", "0"};
 cvar ui_scale = {"ui_scale", "2", onchange_ui_scale};
 cvar sensitivity = {"sensitivity", "2.5"};
+cvar cl_smoothstep = {"cl_smoothstep", "1"};
 
 errcode cvar_init(void)
 {
@@ -101,6 +102,7 @@ errcode cvar_init(void)
 	cvar_register(&cl_2b2tmode);
 	cvar_register(&ui_scale);
 	cvar_register(&sensitivity);
-    
+	cvar_register(&cl_smoothstep);
+
     return ERR_OK;
 }

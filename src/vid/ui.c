@@ -183,7 +183,7 @@ void ui_render(void)
         ui_printf(x, y+=48, "x: %.14f (%d)", cl.game.our_ent->position.x, (int)cl.game.our_ent->position.x >> 4);
         ui_printf(x, y+=8, "y: %.14f (%f)", cl.game.our_ent->position.y, maxy);
         ui_printf(x, y+=8, "z: %.14f (%d)", cl.game.our_ent->position.z, (int)cl.game.our_ent->position.z >> 4);
-        ui_printf(x, y+=8, "state: %d", cl.game.our_ent->onground);
+        ui_printf(x, y+=8, "state: %d/%d", cl.game.our_ent->onground, cl.game.our_ent->was_onground);
         ui_printf(x, y+=24, "Seed: %ld", cl.game.seed);
         ui_printf(x, y+=8, "Time: %lu (day %lu)", cl.game.time, cl.game.time / 24000);
     }

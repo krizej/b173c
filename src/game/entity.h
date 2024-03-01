@@ -54,7 +54,7 @@ typedef struct entity {
     vec3_t position_old;
     vec3_t velocity;
     float move_side, move_forward;
-    float y_size, y_offset; // ?
+    float smooth_step_view_height_offset, eye_offset;
     vec3_t rotation;
     bbox_t bbox;
     bool onground;

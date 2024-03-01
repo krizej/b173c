@@ -557,16 +557,13 @@ void disconnect_f(void)
 {
     if(cl.state != cl_disconnected) {
         if(cl.state == cl_connected) {
-            pkt_disconnect pkt;
             // set to blocking so the pkt packet gets sent
             // before the socket is closed
             setblocking(sockfd, true);
 
-            pkt = (pkt_disconnect) {
+            net_write_pkt_disconnect((pkt_disconnect) {
                 .reason = net_make_string16("Quitting")
-            };
-            net_write_pkt_disconnect(pkt);
-            net_handle_pkt_disconnect(pkt);
+            });
 
             setblocking(sockfd, false);
         }
@@ -602,8 +599,8 @@ void say_f(void)
     message = net_make_string16(msg);
 
     net_write_pkt_chat_message((pkt_chat_message) {
-            .message = message
-        });
+        .message = message
+    });
 
     net_free_string16(message);
 }

@@ -47,13 +47,13 @@ typedef struct {
 } bbox_t;
 
 #define vec3_unpack(v) (v).x, (v).y, (v).z
-#define vec3_from(x, y, z) ((vec3_t){{x, y, z}})
-#define vec3_from1(x)  vec3_from((x), (x), (x))
-#define vec3_add(a, b) vec3_from((a).x + (b).x, (a).y + (b).y, (a).z + (b).z)
-#define vec3_sub(a, b) vec3_from((a).x - (b).x, (a).y - (b).y, (a).z - (b).z)
-#define vec3_mul(v, s) vec3_from((v).x * (s)  , (v).y * (s)  , (v).z * (s)  )
-#define vec3_div(v, s) vec3_from((v).x / (s)  , (v).y / (s)  , (v).z / (s)  )
-#define vec3_invert(v) vec3_sub(vec3_from1(0), (v))
+#define vec3(x, y, z) ((vec3_t){{x, y, z}})
+#define vec3_1(x)  vec3((x), (x), (x))
+#define vec3_add(a, b) vec3((a).x + (b).x, (a).y + (b).y, (a).z + (b).z)
+#define vec3_sub(a, b) vec3((a).x - (b).x, (a).y - (b).y, (a).z - (b).z)
+#define vec3_mul(v, s) vec3((v).x * (s)  , (v).y * (s)  , (v).z * (s)  )
+#define vec3_div(v, s) vec3((v).x / (s)  , (v).y / (s)  , (v).z / (s)  )
+#define vec3_invert(v) vec3_sub(vec3_1(0), (v))
 #define vec3_dot(a, b) ((a).x * (b).x + (a).y * (b).y + (a).z * (b).z)
 #define vec3_len(a)    sqrtf(vec3_dot((a), (a)))
 #define vec3_equ(a, b) ((a).x == (b).x && (a).y == (b).y && (a).z == (b).z)

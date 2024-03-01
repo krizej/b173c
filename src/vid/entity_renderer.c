@@ -18,9 +18,9 @@ extern mat4_t view_mat, proj_mat;
 errcode entity_renderer_init(void)
 {
     vec3_t entity_model_verts[] = {
-            vec3_from(0,0,0),
-            vec3_from(1,0,0),
-            vec3_from(0,1,0)
+            vec3(0, 0, 0),
+            vec3(1, 0, 0),
+            vec3(0, 1, 0)
     };
 
     glGenVertexArrays(1, &gl_vao);
