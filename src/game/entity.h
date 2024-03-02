@@ -58,7 +58,6 @@ typedef struct entity {
     vec3_t rotation;
     bbox_t bbox;
     bool onground;
-    bool was_onground; // fix for unlocked physics fps
     bool collided_horizontally;
     bool collided_vertically;
 
@@ -124,7 +123,7 @@ typedef struct entity {
 extern struct hashmap *world_entity_map;
 
 void entity_set_position(entity *ent, vec3_t pos);
-void entity_update(entity *ent, float dt);
+void entity_update(entity *ent);
 void entity_handle_status_update(entity *ent, byte status);
 
 bool entity_in_water(entity *ent);

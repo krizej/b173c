@@ -163,7 +163,7 @@ void world_renderer_init(void)
 
 	loc_nightlightmod = glGetUniformLocation(gl.shader_blocks, "NIGHTTIME_LIGHT_MODIFIER");
 
-	/* do_unstuck vao */
+	/* init vao */
 	glGenVertexArrays(1, &gl_world_vao);
 
 	glBindVertexArray(gl_world_vao);

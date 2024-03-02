@@ -109,7 +109,7 @@ static void move_entity(entity *ent, vec3_t vel)
                 // apply fix
                 dy = ent->bbox.mins.y - bbox_pre_move.mins.y;
             }
-            if(dy > 0.0f) {
+            if(dy > 0.001f) {
                 if(developer.integer) // leaving this here because of a nasty bug.....
                     con_printf("step %f\n", dy);
                 ent->smooth_step_view_height_offset += dy + 0.01f;
@@ -119,13 +119,6 @@ static void move_entity(entity *ent, vec3_t vel)
     ent->collided_horizontally = oldvel.x != vel.x || oldvel.z != vel.z;
     ent->collided_vertically = oldvel.y != vel.y;
     ent->onground = oldvel.y != vel.y && oldvel.y < 0.0f;
-    if(ent->onground) {
-        float new = ((float)((int)(ent->bbox.mins.y * 100.0f)) / 100.0f);
-        float diff = ent->bbox.mins.y - new;
-        ent->bbox.mins.y -= diff;
-        ent->bbox.maxs.y -= diff;
-        ent->was_onground = true;
-    }
 
     ent->position.x = (ent->bbox.mins.x + ent->bbox.maxs.x) / 2.0f;
     ent->position.y = ent->bbox.mins.y + ent->eye_offset;
@@ -205,9 +198,9 @@ static bool any_blocks_in_bbox_are_liquid(bbox_t box)
     return false;
 }
 
-static bool is_in_position_to_jump_out_of_liquid(entity *ent, float dt)
+static bool is_in_position_to_jump_out_of_liquid(entity *ent)
 {
-    vec3_t vel = vec3_mul(ent->velocity, dt);
+    vec3_t vel = ent->velocity;
     vec3_t offset = vec3(vel.x, vel.y + 0.6f - ent->position.y + ent->position_old.y, vel.z);
     bbox_t bbox = bbox_offset(ent->bbox, offset);
     bbox_t *colliders = world_get_colliding_blocks(bbox);
@@ -216,10 +209,10 @@ static bool is_in_position_to_jump_out_of_liquid(entity *ent, float dt)
     return !any_blocks_in_bbox_are_liquid(bbox);
 }
 
-void entity_update(entity *ent, float dt)
+void entity_update(entity *ent)
 {
     const float accel_in_air = 0.02f;
-    const float drag = 0.02f;
+    const float drag = 0.98f;
     const float gravity = 0.08f;
     const float gravity_in_liquid = 0.02f;
     const float base_friction_ground = 0.91f;
@@ -229,8 +222,6 @@ void entity_update(entity *ent, float dt)
     const float ladder_speed_climb = 0.2f;
 
     float friction;
-
-    dt = TO_20_TPS(dt);
 
     if(!world_is_init())
         return;
@@ -245,15 +236,15 @@ void entity_update(entity *ent, float dt)
 
         friction = entity_in_lava(ent) ? base_friction_lava : base_friction_water;
 
-        update_velocity(ent, accel_in_air * dt);
-        move_entity(ent, vec3_mul(ent->velocity, dt));
+        update_velocity(ent, accel_in_air);
+        move_entity(ent, ent->velocity);
 
-        ent->velocity.x -= (ent->velocity.x - ent->velocity.x * friction) * dt;
-        ent->velocity.y -= (ent->velocity.y - ent->velocity.y * friction) * dt;
-        ent->velocity.z -= (ent->velocity.z - ent->velocity.z * friction) * dt;
-        ent->velocity.y -= gravity_in_liquid * dt;
+        ent->velocity.x *= friction;
+        ent->velocity.y *= friction;
+        ent->velocity.z *= friction;
+        ent->velocity.y -= gravity_in_liquid;
 
-        if(ent->collided_horizontally && is_in_position_to_jump_out_of_liquid(ent, dt)) {
+        if(ent->collided_horizontally && is_in_position_to_jump_out_of_liquid(ent)) {
             ent->velocity.y = 0.3f;
         }
     } else {
@@ -275,9 +266,9 @@ void entity_update(entity *ent, float dt)
             accel = accel_in_air;
 
         // fixme: this feels different
-        ent->smooth_step_view_height_offset -= ent->smooth_step_view_height_offset * 0.6f * dt;
+        ent->smooth_step_view_height_offset *= 0.4f;
 
-        update_velocity(ent, accel * dt);
+        update_velocity(ent, accel);
 
         if(entity_on_ladder(ent)) {
             if(ent->velocity.x < -ladder_speed_base)
@@ -294,20 +285,20 @@ void entity_update(entity *ent, float dt)
             // todo: if sneaking and going down: vel.y = 0
         }
 
-        move_entity(ent, vec3_mul(ent->velocity, dt));
+        move_entity(ent, ent->velocity);
 
         if(ent->collided_horizontally && entity_on_ladder(ent))
             ent->velocity.y = ladder_speed_climb;
 
         // gravity
-        ent->velocity.y -= gravity * dt;
+        ent->velocity.y -= gravity;
 
         // drag
-        ent->velocity.y -= ent->velocity.y * drag * dt;
+        ent->velocity.y *= drag;
 
         // friction
-        ent->velocity.x -= (ent->velocity.x - ent->velocity.x * friction) * dt;
-        ent->velocity.z -= (ent->velocity.z - ent->velocity.z * friction) * dt;
+        ent->velocity.x *= friction;
+        ent->velocity.z *= friction;
     }
 
     if(!vec3_equ(ent->position, ent->position_old)) {

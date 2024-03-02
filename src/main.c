@@ -10,6 +10,8 @@
 #include "assets.h"
 #include "client/cvar.h"
 
+#define TPS 20
+
 entity dummy_ent = {0};
 struct client_state cl = {.game.our_ent = &dummy_ent};
 void *_mem_alloc_impl(size_t sz, const char *file, int line)
@@ -77,7 +79,7 @@ do {                                                    \
 
 void check_stuck(void)
 {
-    // server spawns us in blocks :/
+    // server spawns us in blocks sometimes :/
     if(world_is_init()) {
         entity *ent = cl.game.our_ent;
         bbox_t *colliders = world_get_colliding_blocks(cl.game.our_ent->bbox);
@@ -103,11 +105,11 @@ int main(void)
     
     INIT(cvar_init);
     INIT(con_init);
-    
+    cmd_register("unstuck", check_stuck);
+
     cmd_exec("exec config");
     cmd_exec("exec autoexec");
-    cmd_register("unstuck", check_stuck);
-    
+
     INIT(assets_init);
     INIT(in_init);
     INIT(net_init);
@@ -117,27 +119,32 @@ int main(void)
     INIT(world_init);
 
     while(!cl.done) {
+        /* frame time stuff */
+        cl.frametime = calc_frametime();
         cl.is_physframe = false;
         phys_timeout -= cl.frametime;
         if(phys_timeout <= 0.0f) {
             cl.is_physframe = true;
-
-            net_process();
-            entity_update(cl.game.our_ent, 0.05f);
-
-            phys_timeout = 0.05f; // 20 updates per second
+            phys_timeout = 1.0f / TPS;
         }
 
+        /* user input */
         in_update();
 
+        /* physics etc. */
+        if(cl.is_physframe) {
+            net_process();
+            entity_update(cl.game.our_ent);
+        }
+
+        /* rendering */
         vid_update();
         ui_draw();
         vid_display_frame();
 
-        if(!cl.active) { // todo: sys_inactivesleep cvar
+        if(!cl.active) {
             SDL_Delay(25);
         }
-        cl.frametime = calc_frametime();
     }
 
     net_shutdown();
