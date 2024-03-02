@@ -73,7 +73,6 @@ typedef struct {
     ((b).id == BLOCK_WATER_STILL || (b).id == BLOCK_WATER_MOVING || \
      (b).id == BLOCK_LAVA_STILL  || (b).id == BLOCK_LAVA_MOVING)
 
-#define block_is_collidable(b)  ((b).id != BLOCK_AIR && !block_is_liquid(b))
 
 #define block_is_transparent(b) (block_get_properties(b.id).opaque == 0)
 
@@ -85,6 +84,8 @@ block_properties block_get_properties(block_id id);
 ubyte block_get_texture_index(block_id id, block_face face, ubyte metadata, int x, int y, int z);
 bool block_should_face_be_rendered(int x, int y, int z, block_data self, block_face face);
 float block_fluid_get_height(int x, int y, int z, block_id self_id);
-bbox_t block_get_bbox(block_data block, int x, int y, int z);
+bbox_t block_get_bbox(block_data block, int x, int y, int z, bool selectmode);
+bool block_is_collidable(block_data block);
+bool block_is_selectable(block_data block);
 
 #endif

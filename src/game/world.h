@@ -60,12 +60,9 @@ void world_alloc_chunk(int chunk_x, int chunk_z);
 void world_free_chunk(int chunk_x, int chunk_z);
 bool world_chunk_exists(int chunk_x, int chunk_z);
 world_chunk *world_get_chunk(int chunk_x, int chunk_z);
-void world_mark_region_for_remesh(
-    int x_start, int y_start, int z_start, int x_end, int y_end, int z_end);
+void world_mark_region_for_remesh(int x_start, int y_start, int z_start, int x_end, int y_end, int z_end);
 void world_mark_all_for_remesh(void);
-void world_load_compressed_chunk_data(
-    int x, int y, int z, int size_x, int size_y, int size_z, size_t data_size,
-    ubyte *data);
+void world_load_compressed_chunk_data(int x, int y, int z, int sx, int sy, int sz, size_t size, ubyte *data);
 
 /* blocks */
 // todo: define in block.c maybe
@@ -78,13 +75,12 @@ ubyte world_get_block_lighting(int x, int y, int z);
 bbox_t *world_get_colliding_blocks(bbox_t box);
 
 /* entities */
-// defined in entity.c
 entity *world_get_entity(int entity_id);
 void world_add_entity(entity *ent); // ent is copied so dw about it
 void world_remove_entity(int entity_id);
 
 /* daylight cycle stuff */
-vec4_t world_calculate_sky_color(void); // fixme: 'color' type
+vec4_t world_calculate_sky_color(void);
 float world_calculate_sun_angle(void);
 float world_calculate_sky_light_modifier(void);
 
@@ -102,7 +98,6 @@ void world_renderer_shutdown(void);
 void world_render(void);
 void world_init_chunk_glbufs(world_chunk *c);
 void world_free_chunk_glbufs(world_chunk *c);
-struct world_vertex world_make_vertex(
-    float x, float y, float z, ubyte texture_index, ubyte face, ubyte light);
+struct world_vertex world_make_vertex(float x, float y, float z, ubyte texture_index, ubyte face, ubyte light);
 
 #endif

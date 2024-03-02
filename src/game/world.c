@@ -175,12 +175,12 @@ static int inflate_data(ubyte *in, ubyte *out, size_t size_in, size_t size_out)
 
     ret = inflate(&strm, Z_NO_FLUSH);
     switch(ret) {
-        case Z_NEED_DICT:
-            ret = Z_DATA_ERROR;
-            /* fall through */
-        case Z_DATA_ERROR:
-        case Z_MEM_ERROR:
-            return ret;
+    case Z_NEED_DICT:
+        ret = Z_DATA_ERROR;
+        /* fall through */
+    case Z_DATA_ERROR:
+    case Z_MEM_ERROR:
+        return ret;
     }
 
     inflateEnd(&strm);
@@ -188,7 +188,9 @@ static int inflate_data(ubyte *in, ubyte *out, size_t size_in, size_t size_out)
     return Z_OK;
 }
 
-static int world_set_chunk_data(world_chunk *chunk, const ubyte *data, int x_start, int y_start, int z_start, int x_end, int y_end, int z_end, int data_pos)
+static int
+world_set_chunk_data(world_chunk *chunk, const ubyte *data, int x_start, int y_start, int z_start, int x_end, int y_end,
+                     int z_end, int data_pos)
 {
     for(int x = x_start; x < x_end; x++) {
         for(int z = z_start; z < z_end; z++) {
@@ -244,24 +246,25 @@ static int world_set_chunk_data(world_chunk *chunk, const ubyte *data, int x_sta
     return data_pos;
 }
 
-void world_load_compressed_chunk_data(int x, int y, int z, int size_x, int size_y, int size_z, size_t compressed_size, ubyte *compressed)
+void world_load_compressed_chunk_data(int x, int y, int z, int sx, int sy, int sz, size_t size, ubyte *compressed)
 {
     // 1 byte id, 0.5 byte metadata, 2x0.5 byte light data
-    ubyte data[size_x * size_y * size_z * 5 / 2];
+    ubyte data[sx * sy * sz * 5 / 2];
     int i;
     int chunk_x_start = x >> 4;
     int chunk_z_start = z >> 4;
-    int chunk_x_end = (x + size_x - 1) >> 4;
-    int chunk_z_end = (z + size_z - 1) >> 4;
+    int chunk_x_end = (x + sx - 1) >> 4;
+    int chunk_z_end = (z + sz - 1) >> 4;
     int y_start, y_end;
 
-    if((i = inflate_data(compressed, data, compressed_size, sizeof(data))) != Z_OK) {
-        con_printf(CON_STYLE_RED"error while decompressing chunk data:"CON_STYLE_WHITE"%s\n", zError(i)); // should this print?
+    if((i = inflate_data(compressed, data, size, sizeof(data))) != Z_OK) {
+        con_printf(CON_STYLE_RED"error while decompressing chunk data:"CON_STYLE_WHITE"%size\n",
+                   zError(i)); // should this print?
         return;
     }
 
     y_start = y;
-    y_end = y + size_y;
+    y_end = y + sy;
 
     if(y_start < 0)
         y_start = 0;
@@ -271,7 +274,7 @@ void world_load_compressed_chunk_data(int x, int y, int z, int size_x, int size_
     i = 0;
     for(int cx = chunk_x_start; cx <= chunk_x_end; cx++) {
         int x_start = x - cx * 16;
-        int x_end = x + size_x - cx * 16;
+        int x_end = x + sx - cx * 16;
 
         if(x_start < 0)
             x_start = 0;
@@ -280,7 +283,7 @@ void world_load_compressed_chunk_data(int x, int y, int z, int size_x, int size_
 
         for(int cz = chunk_z_start; cz <= chunk_z_end; cz++) {
             int z_start = z - cz * 16;
-            int z_end = z + size_z - cz * 16;
+            int z_end = z + sz - cz * 16;
 
             if(z_start < 0)
                 z_start = 0;
@@ -291,7 +294,8 @@ void world_load_compressed_chunk_data(int x, int y, int z, int size_x, int size_
             if(!world_chunk_exists(cx, cz))
                 world_alloc_chunk(cx, cz);
 
-            world_mark_region_for_remesh(cx * 16 + x_start - 1, y_start - 1, cz * 16 + z_start - 1, cx * 16 + x_end + 1, y_end + 1, cz * 16 + z_end + 1);
+            world_mark_region_for_remesh(cx * 16 + x_start - 1, y_start - 1, cz * 16 + z_start - 1, cx * 16 + x_end + 1,
+                                         y_end + 1, cz * 16 + z_end + 1);
             i = world_set_chunk_data(world_get_chunk(cx, cz), data, x_start, y_start, z_start, x_end, y_end, z_end, i);
         }
     }
@@ -299,7 +303,7 @@ void world_load_compressed_chunk_data(int x, int y, int z, int size_x, int size_
 
 block_data world_get_blockf(float x, float y, float z)
 {
-    return world_get_block((int)floorf(x), (int)floorf(y), (int)floorf(z));
+    return world_get_block((int) floorf(x), (int) floorf(y), (int) floorf(z));
 }
 
 block_data world_get_block(int x, int y, int z)
@@ -325,17 +329,45 @@ block_data world_get_block(int x, int y, int z)
     return EMPTY_BLOCK_DATA;
 }
 
+static void add_stair_bboxes(bbox_t *colliders, size_t *n_colliders, block_data block, int x, int y, int z)
+{
+    int facing = block.metadata;
+    switch(facing) {
+    case 0:
+        colliders[(*n_colliders)++] = (bbox_t) {vec3(x, y, z), vec3(x + 0.5f, y + 0.5f, z + 1)};
+        colliders[(*n_colliders)++] = (bbox_t) {vec3(x + 0.5f, y, z), vec3(x + 1, y + 1, z + 1)};
+        break;
+    case 1:
+        colliders[(*n_colliders)++] = (bbox_t) {vec3(x, y, z), vec3(x + 0.5f, y + 1, z + 1)};
+        colliders[(*n_colliders)++] = (bbox_t) {vec3(x + 0.5f, y, z), vec3(x + 1, y + 0.5f, z + 1)};
+        break;
+    case 2:
+        colliders[(*n_colliders)++] = (bbox_t) {vec3(x, y, z), vec3(x + 1, y + 0.5f, z + 0.5f)};
+        colliders[(*n_colliders)++] = (bbox_t) {vec3(x, y, z + 0.5f), vec3(x + 1, y + 1, z + 1)};
+        break;
+    case 3:
+
+        colliders[(*n_colliders)++] = (bbox_t) {vec3(x, y, z), vec3(x + 1, y + 1, z + 0.5f)};
+        colliders[(*n_colliders)++] = (bbox_t) {vec3(x, y, z + 0.5f), vec3(x + 1, y + 0.5f, z + 1)};
+        break;
+    default:
+        colliders[(*n_colliders)++] = (bbox_t) {vec3(x, y, z), vec3(x + 1, y + 1, z + 1)};
+        break;
+    }
+
+}
+
 bbox_t *world_get_colliding_blocks(bbox_t box)
 {
     static bbox_t colliders[64] = {0};
     size_t n_colliders = 0;
 
-    int x0 = (int)floorf(box.mins.x);
-    int y0 = (int)floorf(box.mins.y - 0.01f);
-    int z0 = (int)floorf(box.mins.z);
-    int x1 = (int)floorf(box.maxs.x + 1.0f);
-    int y1 = (int)floorf(box.maxs.y + 1.0f);
-    int z1 = (int)floorf(box.maxs.z + 1.0f);
+    int x0 = (int) floorf(box.mins.x);
+    int y0 = (int) floorf(box.mins.y - 0.01f);
+    int z0 = (int) floorf(box.mins.z);
+    int x1 = (int) floorf(box.maxs.x + 1.0f);
+    int y1 = (int) floorf(box.maxs.y + 1.0f);
+    int z1 = (int) floorf(box.maxs.z + 1.0f);
 
     memset(colliders, 0, sizeof(colliders));
 
@@ -344,7 +376,14 @@ bbox_t *world_get_colliding_blocks(bbox_t box)
             for(int y = y0 - 1; y < y1; y++) {
                 block_data block = world_get_block(x, y, z);
                 if(block_is_collidable(block)) {
-                    colliders[n_colliders++] = block_get_bbox(block, x, y, z);
+                    if((block.id == BLOCK_STAIRS_STONE || block.id == BLOCK_STAIRS_WOOD) && n_colliders < 62) {
+                        add_stair_bboxes(colliders, &n_colliders, block, x, y, z);
+                    } else {
+                        bbox_t bb = block_get_bbox(block, x, y, z, false);
+                        if(!bbox_null(bb)) {
+                            colliders[n_colliders++] = bb;
+                        }
+                    }
                     if(n_colliders >= 63) {
                         goto end; // realistically shouldn't happen
                     }
@@ -354,7 +393,7 @@ bbox_t *world_get_colliding_blocks(bbox_t box)
     }
 
     end:
-    colliders[n_colliders] = (bbox_t){vec3_1(-1), vec3_1(-1)};
+    colliders[n_colliders] = (bbox_t) {vec3_1(-1), vec3_1(-1)};
     return colliders;
 }
 
@@ -364,7 +403,8 @@ static ubyte chunk_get_block_lighting(world_chunk *c, int x, int y, int z)
     int i = IDX_FROM_COORDS(x, y, z);
     block_data block = c->data[i];
     int sl, bl;
-    if(block.id == BLOCK_SLAB_SINGLE || block.id == BLOCK_FARMLAND || block.id == BLOCK_STAIRS_WOOD || block.id == BLOCK_STAIRS_STONE) {
+    if(block.id == BLOCK_SLAB_SINGLE || block.id == BLOCK_FARMLAND || block.id == BLOCK_STAIRS_WOOD ||
+       block.id == BLOCK_STAIRS_STONE) {
         // fixme?
         int py = world_get_block_lighting(x, y + 1, z);
         int px = world_get_block_lighting(x + 1, y, z);
@@ -419,7 +459,7 @@ void world_set_block(int x, int y, int z, block_data data)
     if(!chunk)
         return;
 
-    world_mark_region_for_remesh(x-1, y-1, z-1, x+1, y+1, z+1);
+    world_mark_region_for_remesh(x - 1, y - 1, z - 1, x + 1, y + 1, z + 1);
 
     chunk->data[IDX_FROM_COORDS(x, y, z)] = data;
 }
@@ -439,6 +479,7 @@ void world_set_block_metadata(int x, int y, int z, byte new_metadata)
 }
 
 #define is_between(t, a, b) t >= a && t <= b
+
 vec4_t world_calculate_sky_color(void)
 {
     static vec4_t color = {.a = 1};
@@ -511,6 +552,7 @@ struct trace_result world_trace_ray(vec3_t origin, vec3_t dir, float maxlen)
     block_face ofsface[3];
     vec3_t delta = {0};
     vec3_t edgedist = {0};
+    vec3_t end = vec3_add(origin, vec3_mul(dir, maxlen));
 
     for(int axis = 0; axis < 3; axis++) {
         delta.array[axis] = dir.array[axis] == 0.0f ? 9999.0f : fabsf(1.0f / dir.array[axis]);
@@ -553,9 +595,12 @@ struct trace_result world_trace_ray(vec3_t origin, vec3_t dir, float maxlen)
             break;
 
         res.block = world_get_block(res.x, res.y, res.z);
-        if(block_is_collidable(res.block)) {
-            res.reached_end = false;
-            break;
+        if(block_is_selectable(res.block)) {
+            bbox_t bbox = block_get_bbox(res.block, res.x, res.y, res.z, true);
+            if(bbox_intersects_line(bbox, origin, end)) {
+                res.reached_end = false;
+                break;
+            }
         }
 
     }
