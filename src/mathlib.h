@@ -53,6 +53,7 @@ typedef struct {
 #define vec3_sub(a, b) vec3((a).x - (b).x, (a).y - (b).y, (a).z - (b).z)
 #define vec3_mul(v, s) vec3((v).x * (s)  , (v).y * (s)  , (v).z * (s)  )
 #define vec3_div(v, s) vec3((v).x / (s)  , (v).y / (s)  , (v).z / (s)  )
+#define vec3_invdiv(s, v) vec3((s) / (v).x, (s) / (v).y, (s) / (v).z)
 #define vec3_invert(v) vec3_sub(vec3_1(0), (v))
 #define vec3_dot(a, b) ((a).x * (b).x + (a).y * (b).y + (a).z * (b).z)
 #define vec3_len(a)    sqrtf(vec3_dot((a), (a)))
@@ -80,5 +81,6 @@ void cam_angles(vec3_t *forward, vec3_t *right, vec3_t *up, float yaw, float pit
 
 bbox_t bbox_offset(bbox_t bbox, vec3_t offset);
 bool bbox_null(bbox_t bbox);
+bool bbox_intersects_line(bbox_t bbox, vec3_t start, vec3_t end);
 
 #endif

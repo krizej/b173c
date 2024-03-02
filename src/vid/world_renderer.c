@@ -123,11 +123,18 @@ static void update_view_matrix_and_frustum(void)
 
 	/* update look trace */
 	if(cl.state == cl_connected) {
+        struct world_vertex *selection_box;
+        bbox_t bbox;
+
 		cl.game.look_trace = world_trace_ray(lerp_pos, forward, 5.0f);
+
+        bbox = block_get_bbox(cl.game.look_trace.block, vec3_unpack(cl.game.look_trace), true);
+        selection_box = update_block_selection_box(bbox);
+
 		glBindBuffer(GL_ARRAY_BUFFER, gl_block_selection_vbo);
 		glBufferData(GL_ARRAY_BUFFER,
          /*  size */ 16 * sizeof(struct world_vertex),
-         /*  data */ update_block_selection_box(block_get_bbox(cl.game.look_trace.block, vec3_unpack(cl.game.look_trace))),
+         /*  data */ selection_box,
          /* usage */ GL_STATIC_DRAW);
 
 		glBindBuffer(GL_ARRAY_BUFFER, 0);

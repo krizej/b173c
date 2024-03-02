@@ -325,6 +325,34 @@ block_data world_get_block(int x, int y, int z)
     return EMPTY_BLOCK_DATA;
 }
 
+static void add_stair_bboxes(bbox_t *colliders, size_t *n_colliders, block_data block, int x, int y, int z)
+{
+    int facing = block.metadata;
+    switch(facing) {
+    case 0:
+        colliders[(*n_colliders)++] = (bbox_t){vec3(x, y, z), vec3(x + 0.5f, y + 0.5f, z + 1)};
+        colliders[(*n_colliders)++] = (bbox_t){vec3(x + 0.5f, y, z), vec3(x + 1, y + 1, z + 1)};
+        break;
+    case 1:
+        colliders[(*n_colliders)++] = (bbox_t){vec3(x, y, z), vec3(x + 0.5f, y + 1, z + 1)};
+        colliders[(*n_colliders)++] = (bbox_t){vec3(x + 0.5f, y, z), vec3(x + 1, y + 0.5f, z + 1)};
+        break;
+    case 2:
+        colliders[(*n_colliders)++] = (bbox_t){vec3(x, y, z), vec3(x + 1, y + 0.5f, z + 0.5f)};
+        colliders[(*n_colliders)++] = (bbox_t){vec3(x, y, z + 0.5f), vec3(x + 1, y + 1, z + 1)};
+        break;
+    case 3:
+
+        colliders[(*n_colliders)++] = (bbox_t){vec3(x, y, z), vec3(x + 1, y + 1, z + 0.5f)};
+        colliders[(*n_colliders)++] = (bbox_t){vec3(x, y, z + 0.5f), vec3(x + 1, y + 0.5f, z + 1)};
+        break;
+    default:
+        colliders[(*n_colliders)++] = (bbox_t){vec3(x, y, z), vec3(x + 1, y + 1, z + 1)};
+        break;
+    }
+
+}
+
 bbox_t *world_get_colliding_blocks(bbox_t box)
 {
     static bbox_t colliders[64] = {0};
@@ -344,7 +372,14 @@ bbox_t *world_get_colliding_blocks(bbox_t box)
             for(int y = y0 - 1; y < y1; y++) {
                 block_data block = world_get_block(x, y, z);
                 if(block_is_collidable(block)) {
-                    colliders[n_colliders++] = block_get_bbox(block, x, y, z);
+                    if((block.id == BLOCK_STAIRS_STONE || block.id == BLOCK_STAIRS_WOOD) && n_colliders < 62) {
+                        add_stair_bboxes(colliders, &n_colliders, block, x, y, z);
+                    } else {
+                        bbox_t bb = block_get_bbox(block, x, y, z, false);
+                        if(!bbox_null(bb)) {
+                            colliders[n_colliders++] = bb;
+                        }
+                    }
                     if(n_colliders >= 63) {
                         goto end; // realistically shouldn't happen
                     }
@@ -511,6 +546,7 @@ struct trace_result world_trace_ray(vec3_t origin, vec3_t dir, float maxlen)
     block_face ofsface[3];
     vec3_t delta = {0};
     vec3_t edgedist = {0};
+    vec3_t end = vec3_add(origin, vec3_mul(dir, maxlen));
 
     for(int axis = 0; axis < 3; axis++) {
         delta.array[axis] = dir.array[axis] == 0.0f ? 9999.0f : fabsf(1.0f / dir.array[axis]);
@@ -553,9 +589,12 @@ struct trace_result world_trace_ray(vec3_t origin, vec3_t dir, float maxlen)
             break;
 
         res.block = world_get_block(res.x, res.y, res.z);
-        if(block_is_collidable(res.block)) {
-            res.reached_end = false;
-            break;
+        if(block_is_selectable(res.block)) {
+            bbox_t bbox = block_get_bbox(res.block, res.x, res.y, res.z, true);
+            if(bbox_intersects_line(bbox, origin, end)) {
+                res.reached_end = false;
+                break;
+            }
         }
 
     }

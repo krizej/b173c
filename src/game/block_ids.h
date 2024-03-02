@@ -1,96 +1,98 @@
-#define BLOCK_AIR                        0
-#define BLOCK_STONE                      1
-#define BLOCK_GRASS                      2
-#define BLOCK_DIRT                       3
-#define BLOCK_COBBLESTONE                4
-#define BLOCK_WOOD_PLANKS                5
-#define BLOCK_SAPLING                    6
-#define BLOCK_BEDROCK                    7
-#define BLOCK_WATER_MOVING               8
-#define BLOCK_WATER_STILL                9
-#define BLOCK_LAVA_MOVING                10
-#define BLOCK_LAVA_STILL                 11
-#define BLOCK_SAND                       12
-#define BLOCK_GRAVEL                     13
-#define BLOCK_ORE_GOLD                   14
-#define BLOCK_ORE_IRON                   15
-#define BLOCK_ORE_COAL                   16
-#define BLOCK_WOOD_LOG                   17
-#define BLOCK_LEAVES                     18
-#define BLOCK_SPONGE                     19
-#define BLOCK_GLASS                      20
-#define BLOCK_ORE_LAPIS                  21
-#define BLOCK_BLOCK_LAPIS                22
-#define BLOCK_DISPENSER                  23
-#define BLOCK_SANDSTONE                  24
-#define BLOCK_NOTEBLOCK                  25
-#define BLOCK_BED                        26
-#define BLOCK_RAIL_POWERED               27
-#define BLOCK_RAIL_DETECTOR              28
-#define BLOCK_PISTON_BASE_STICKY         29
-#define BLOCK_COBWEB                     30
-#define BLOCK_TALLGRASS                  31
-#define BLOCK_DEADBUSH                   32
-#define BLOCK_PISTON_BASE                33
-#define BLOCK_PISTON_EXTENSION           34
-#define BLOCK_CLOTH                      35
-#define BLOCK_PISTON_MOVING              36
-#define BLOCK_FLOWER_DANDELION           37
-#define BLOCK_FLOWER_ROSE                38
-#define BLOCK_MUSHROOM_BROWN             39
-#define BLOCK_MUSHROOM_RED               40
-#define BLOCK_BLOCK_GOLD                 41
-#define BLOCK_BLOCK_IRON                 42
-#define BLOCK_SLAB_DOUBLE                43
-#define BLOCK_SLAB_SINGLE                44
-#define BLOCK_BRICK                      45
-#define BLOCK_TNT                        46
-#define BLOCK_BOOKSHELF                  47
-#define BLOCK_COBBLESTONE_MOSSY          48
-#define BLOCK_OBSIDIAN                   49
-#define BLOCK_TORCH                      50
-#define BLOCK_FIRE                       51
-#define BLOCK_MOB_SPAWNER                52
-#define BLOCK_STAIRS_WOOD                53
-#define BLOCK_CHEST                      54
-#define BLOCK_REDSTONE_DUST              55
-#define BLOCK_ORE_DIAMOND                56
-#define BLOCK_BLOCK_DIAMOND              57
-#define BLOCK_WORKBENCH                  58
-#define BLOCK_CROP_WHEAT                 59
-#define BLOCK_FARMLAND                   60
-#define BLOCK_FURNACE_IDLE               61
-#define BLOCK_FURNACE_ACTIVE             62
-#define BLOCK_SIGN_POST                  63
-#define BLOCK_DOOR_WOOD                  64
-#define BLOCK_LADDER                     65
-#define BLOCK_RAIL                       66
-#define BLOCK_STAIRS_STONE               67
-#define BLOCK_SIGN_WALL                  68
-#define BLOCK_LEVER                      69
-#define BLOCK_PRESSURE_PLATE_STONE       70
-#define BLOCK_DOOR_IRON                  71
-#define BLOCK_PRESSURE_PLATE_WOOD        72
-#define BLOCK_ORE_REDSTONE               73
-#define BLOCK_ORE_REDSTONE_GLOWING       74
-#define BLOCK_TORCH_REDSTONE_DISABLED    75
-#define BLOCK_TORCH_REDSTONE_ENABLED     76
-#define BLOCK_BUTTON                     77
-#define BLOCK_SNOW_LAYER                 78
-#define BLOCK_ICE                        79
-#define BLOCK_SNOW                       80
-#define BLOCK_CACTUS                     81
-#define BLOCK_CLAY                       82
-#define BLOCK_SUGAR_CANE                 83
-#define BLOCK_JUKEBOX                    84
-#define BLOCK_FENCE                      85
-#define BLOCK_PUMPKIN                    86
-#define BLOCK_NETTHERRACK                87
-#define BLOCK_SOUL_SAND                  88
-#define BLOCK_GLOWSTONE                  89
-#define BLOCK_PORTAL                     90
-#define BLOCK_PUMPKIN_LANTERN            91
-#define BLOCK_CAKE                       92
-#define BLOCK_REDSTONE_REPEATER_DISABLED 93
-#define BLOCK_REDSTONE_REPEATER_ENABLED  94
-#define BLOCK_TRAPDOOR                   96
+enum block_id {
+    BLOCK_AIR =                        0,
+    BLOCK_STONE =                      1,
+    BLOCK_GRASS =                      2,
+    BLOCK_DIRT =                       3,
+    BLOCK_COBBLESTONE =                4,
+    BLOCK_WOOD_PLANKS =                5,
+    BLOCK_SAPLING =                    6,
+    BLOCK_BEDROCK =                    7,
+    BLOCK_WATER_MOVING =               8,
+    BLOCK_WATER_STILL =                9,
+    BLOCK_LAVA_MOVING =                10,
+    BLOCK_LAVA_STILL =                 11,
+    BLOCK_SAND =                       12,
+    BLOCK_GRAVEL =                     13,
+    BLOCK_ORE_GOLD =                   14,
+    BLOCK_ORE_IRON =                   15,
+    BLOCK_ORE_COAL =                   16,
+    BLOCK_WOOD_LOG =                   17,
+    BLOCK_LEAVES =                     18,
+    BLOCK_SPONGE =                     19,
+    BLOCK_GLASS =                      20,
+    BLOCK_ORE_LAPIS =                  21,
+    BLOCK_BLOCK_LAPIS =                22,
+    BLOCK_DISPENSER =                  23,
+    BLOCK_SANDSTONE =                  24,
+    BLOCK_NOTEBLOCK =                  25,
+    BLOCK_BED =                        26,
+    BLOCK_RAIL_POWERED =               27,
+    BLOCK_RAIL_DETECTOR =              28,
+    BLOCK_PISTON_BASE_STICKY =         29,
+    BLOCK_COBWEB =                     30,
+    BLOCK_TALLGRASS =                  31,
+    BLOCK_DEADBUSH =                   32,
+    BLOCK_PISTON_BASE =                33,
+    BLOCK_PISTON_EXTENSION =           34,
+    BLOCK_CLOTH =                      35,
+    BLOCK_PISTON_MOVING =              36,
+    BLOCK_FLOWER_DANDELION =           37,
+    BLOCK_FLOWER_ROSE =                38,
+    BLOCK_MUSHROOM_BROWN =             39,
+    BLOCK_MUSHROOM_RED =               40,
+    BLOCK_BLOCK_GOLD =                 41,
+    BLOCK_BLOCK_IRON =                 42,
+    BLOCK_SLAB_DOUBLE =                43,
+    BLOCK_SLAB_SINGLE =                44,
+    BLOCK_BRICK =                      45,
+    BLOCK_TNT =                        46,
+    BLOCK_BOOKSHELF =                  47,
+    BLOCK_COBBLESTONE_MOSSY =          48,
+    BLOCK_OBSIDIAN =                   49,
+    BLOCK_TORCH =                      50,
+    BLOCK_FIRE =                       51,
+    BLOCK_MOB_SPAWNER =                52,
+    BLOCK_STAIRS_WOOD =                53,
+    BLOCK_CHEST =                      54,
+    BLOCK_REDSTONE_DUST =              55,
+    BLOCK_ORE_DIAMOND =                56,
+    BLOCK_BLOCK_DIAMOND =              57,
+    BLOCK_WORKBENCH =                  58,
+    BLOCK_CROP_WHEAT =                 59,
+    BLOCK_FARMLAND =                   60,
+    BLOCK_FURNACE_IDLE =               61,
+    BLOCK_FURNACE_ACTIVE =             62,
+    BLOCK_SIGN_POST =                  63,
+    BLOCK_DOOR_WOOD =                  64,
+    BLOCK_LADDER =                     65,
+    BLOCK_RAIL =                       66,
+    BLOCK_STAIRS_STONE =               67,
+    BLOCK_SIGN_WALL =                  68,
+    BLOCK_LEVER =                      69,
+    BLOCK_PRESSURE_PLATE_STONE =       70,
+    BLOCK_DOOR_IRON =                  71,
+    BLOCK_PRESSURE_PLATE_WOOD =        72,
+    BLOCK_ORE_REDSTONE =               73,
+    BLOCK_ORE_REDSTONE_GLOWING =       74,
+    BLOCK_TORCH_REDSTONE_DISABLED =    75,
+    BLOCK_TORCH_REDSTONE_ENABLED =     76,
+    BLOCK_BUTTON =                     77,
+    BLOCK_SNOW_LAYER =                 78,
+    BLOCK_ICE =                        79,
+    BLOCK_SNOW =                       80,
+    BLOCK_CACTUS =                     81,
+    BLOCK_CLAY =                       82,
+    BLOCK_SUGAR_CANE =                 83,
+    BLOCK_JUKEBOX =                    84,
+    BLOCK_FENCE =                      85,
+    BLOCK_PUMPKIN =                    86,
+    BLOCK_NETTHERRACK =                87,
+    BLOCK_SOUL_SAND =                  88,
+    BLOCK_GLOWSTONE =                  89,
+    BLOCK_PORTAL =                     90,
+    BLOCK_PUMPKIN_LANTERN =            91,
+    BLOCK_CAKE =                       92,
+    BLOCK_REDSTONE_REPEATER_DISABLED = 93,
+    BLOCK_REDSTONE_REPEATER_ENABLED =  94,
+    BLOCK_TRAPDOOR =                   96,
+};
