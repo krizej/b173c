@@ -150,7 +150,7 @@ bool block_should_face_be_rendered(int x, int y, int z, block_data self, block_f
     return block_is_transparent(other);
 }
 
-static float fluid_get_percent_air(ubyte metadata)
+float block_fluid_get_percent_air(ubyte metadata)
 {
     if(metadata >= 8)
         metadata = 0;
@@ -194,14 +194,69 @@ float block_fluid_get_height(int x, int y, int z, block_id self_id)
             }
         } else {
             if(other.metadata >= 8 || other.metadata == 0) {
-                total_air += fluid_get_percent_air(other.metadata) * 10.0f;
+                total_air += block_fluid_get_percent_air(other.metadata) * 10.0f;
                 total += 10;
             }
-            total_air += fluid_get_percent_air(other.metadata);
+            total_air += block_fluid_get_percent_air(other.metadata);
             total++;
         }
     }
     return 1.0f - total_air / (float) total;
+}
+
+static int fluid_get_decay(bool lava, int x, int y, int z)
+{
+    block_data block = world_get_block(x, y, z);
+    int metadata = block.metadata;
+
+    if(lava && block.id != BLOCK_LAVA_STILL && block.id != BLOCK_LAVA_MOVING)
+        return -1;
+    if(!lava && block.id != BLOCK_WATER_STILL && block.id != BLOCK_WATER_MOVING)
+        return -1;
+
+    if(metadata >= 8)
+        metadata = 0;
+    return metadata;
+}
+
+vec3_t block_fluid_get_flow_direction(int x, int y, int z)
+{
+    vec3_t flow_dir = {0};
+    block_data orig = world_get_block(x, y, z);
+    bool lava = orig.id == BLOCK_LAVA_MOVING || orig.id == BLOCK_LAVA_STILL;
+    int decay = fluid_get_decay(lava, x, y, z);
+
+    for(int side = 0; side < 4; side++) {
+        int xoff = x;
+        int zoff = z;
+        if(side == 0)
+            xoff--;
+        if(side == 1)
+            zoff--;
+        if(side == 2)
+            xoff++;
+        if(side == 3)
+            zoff++;
+        {
+            int decay2 = fluid_get_decay(lava, xoff, y, zoff);
+            int diff;
+            if(decay2 >= 0) {
+                diff = decay2 - decay;
+                flow_dir = vec3_add(flow_dir, vec3((xoff - x) * diff, 0, (zoff - z) * diff));
+            } else {
+                if(!block_is_solid(world_get_block(xoff, y, zoff))) {
+                    decay2 = fluid_get_decay(lava, xoff, y - 1, zoff);
+                    if(decay2 >= 0) {
+                        diff = decay2 - (decay - 8);
+                        flow_dir = vec3_add(flow_dir, vec3((xoff - x) * diff, 0, (zoff - z) * diff));
+                    }
+                }
+            }
+        }
+    }
+
+    flow_dir = vec3_normalize(flow_dir);
+    return flow_dir;
 }
 
 void onchange_block_render_modes(void)

@@ -104,7 +104,7 @@ static void move_entity(entity *ent, vec3_t vel)
             ent->bbox = bbox_after_move;
         } else {
             // step up
-            float dy = ent->bbox.mins.y - (float)((int)ent->bbox.mins.y);
+            float dy = ent->bbox.mins.y - (float) ((int) ent->bbox.mins.y);
             if(cl_smoothstep.integer == 2) {
                 // apply fix
                 dy = ent->bbox.mins.y - bbox_pre_move.mins.y;
@@ -124,9 +124,8 @@ static void move_entity(entity *ent, vec3_t vel)
     ent->position.y = ent->bbox.mins.y + ent->eye_offset;
     ent->position.z = (ent->bbox.mins.z + ent->bbox.maxs.z) / 2.0f;
 
-    if(cl_smoothstep.integer) {
+    if(cl_smoothstep.integer)
         ent->position.y -= ent->smooth_step_view_height_offset;
-    }
 
     if(oldvel.x != vel.x)
         ent->velocity.x = 0.0f;
@@ -170,12 +169,12 @@ static void update_velocity(entity *ent, float accel)
 
 static bool any_blocks_in_bbox_are_liquid(bbox_t box)
 {
-    int x0 = (int)floorf(box.mins.x);
-    int y0 = (int)floorf(box.mins.y);
-    int z0 = (int)floorf(box.mins.z);
-    int x1 = (int)floorf(box.maxs.x + 1.0f);
-    int y1 = (int)floorf(box.maxs.y + 1.0f);
-    int z1 = (int)floorf(box.maxs.z + 1.0f);
+    int x0 = (int) floorf(box.mins.x);
+    int y0 = (int) floorf(box.mins.y);
+    int z0 = (int) floorf(box.mins.z);
+    int x1 = (int) floorf(box.maxs.x + 1.0f);
+    int y1 = (int) floorf(box.maxs.y + 1.0f);
+    int z1 = (int) floorf(box.maxs.z + 1.0f);
 
     if(box.mins.x < 0.0f)
         x0--;
@@ -209,6 +208,45 @@ static bool is_in_position_to_jump_out_of_liquid(entity *ent)
     return !any_blocks_in_bbox_are_liquid(bbox);
 }
 
+static bool handle_water_accel(entity *ent)
+{
+    int x0 = (int) floorf(ent->bbox.mins.x);
+    int x1 = (int) floorf(ent->bbox.maxs.x + 1.0f);
+    int y0 = (int) floorf(ent->bbox.mins.y + 0.4f);
+    int y1 = (int) floorf(ent->bbox.maxs.y - 0.4f + 1.0f);
+    int z0 = (int) floorf(ent->bbox.mins.z);
+    int z1 = (int) floorf(ent->bbox.maxs.z + 1.0f);
+
+    if(!world_chunk_exists(x0 >> 4, z0 >> 4) || !world_chunk_exists(x1 >> 4, z0 >> 4)) {
+        return false;
+    } else {
+        bool in_water = false;
+        vec3_t vel = {0};
+        for(int x = x0; x < x1; x++) {
+            for(int y = y0; y < y1; y++) {
+                for(int z = z0; z < z1; z++) {
+                    block_data block = world_get_block(x, y, z);
+                    if(block.id == BLOCK_WATER_STILL || block.id == BLOCK_WATER_MOVING) {
+                        float threshold = ((float)(y + 1) - block_fluid_get_percent_air(block.metadata));
+                        if((float) y1 >= threshold) {
+                            vec3_t vel_add = block_fluid_get_flow_direction(x, y, z);
+                            vel = vec3_add(vel, vel_add);
+                            in_water = true;
+                        }
+                    }
+                }
+            }
+        }
+        if(vec3_len(vel) > 0.0f) {
+            float speed = 0.014f;
+            vel = vec3_normalize(vel);
+            ent->velocity = vec3_add(ent->velocity, vec3_mul(vel, speed));
+        }
+
+        return in_water;
+    }
+}
+
 void entity_update(entity *ent)
 {
     const float accel_in_air = 0.02f;
@@ -231,9 +269,9 @@ void entity_update(entity *ent)
 
     ent->position_old = ent->position;
 
-    if(entity_in_water(ent) || entity_in_lava(ent)) {
-        // TODO: being pushed by flowing liquid
+    handle_water_accel(ent);
 
+    if(entity_in_water(ent) || entity_in_lava(ent)) {
         friction = entity_in_lava(ent) ? base_friction_lava : base_friction_water;
 
         update_velocity(ent, accel_in_air);
@@ -253,12 +291,12 @@ void entity_update(entity *ent)
 
         friction = base_friction_ground;
 
-        if (ent->onground) {
+        if(ent->onground) {
             block_data block = world_get_blockf(ent->position.x, ent->bbox.mins.y - 1, ent->position.z);
             friction = block.id != BLOCK_ICE ? 0.546f : 0.8918f; // fixme: hardcoding :/
         }
 
-        if (ent->onground)
+        if(ent->onground)
             /* (0.6 * 0.91)^3  --  0.6 = base slipperiness, 0.91 = base friction */
             /* means accel is lower on slippery surfaces (ice) */
             accel = 0.016277136f / (friction * friction * friction);
